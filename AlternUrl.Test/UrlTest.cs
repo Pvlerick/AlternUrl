@@ -1,0 +1,143 @@
+﻿using NUnit.Framework;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace AlternUrl.Test
+{
+    [TestFixture]
+    public class UrlTest
+    {
+        [TestCase("http://www.google.com/", UrlKind.Absolute)]
+        [TestCase("http://www.google.com", UrlKind.Absolute)]
+        [TestCase("https://www.google.com/", UrlKind.Absolute)]
+        [TestCase("https://www.google.com", UrlKind.Absolute)]
+        [TestCase("/mail/?foo=12&bar=34#anchor", UrlKind.Relative)]
+        [TestCase("mail/?foo=12&bar=34#anchor", UrlKind.Relative)]
+        [TestCase("http://www.google.com/mail/?foo=12&bar=34#anchor", UrlKind.Absolute)]
+        [TestCase("https://www.google.com/mail/?foo=12&bar=34#anchor", UrlKind.Absolute)]
+        public void Kind(String urlText, UrlKind expectedResult)
+        {
+            var url = new Url(urlText);
+
+            Assert.AreEqual(expectedResult, url.Kind);
+        }
+
+        [TestCase("http://www.google.com/", "", false)]
+        [TestCase("http://www.google.com", "", false)]
+        [TestCase("http://www.google.com/mail", "", false)]
+        [TestCase("http://www.google.com/mail/", "", false)]
+        [TestCase("http://www.google.com/hello.html", ".html", true)]
+        [TestCase("http://www.google.com/mail/hello.htm", ".htm", true)]
+        [TestCase("http://www.google.com/mail/hello.html", ".html", true)]
+        [TestCase("http://www.google.com/mail/hello.html#", ".html", true)]
+        [TestCase("http://www.google.com/mail/hello.html#anchor", ".html", true)]
+        [TestCase("http://www.google.com/mail/hello.html?", ".html", true)]
+        [TestCase("http://www.google.com/mail/hello.html?#", ".html", true)]
+        [TestCase("http://www.google.com/mail/hello.html?foo", ".html", true)]
+        [TestCase("http://www.google.com/mail/hello.html?foo=12", ".html", true)]
+        [TestCase("http://www.google.com/mail/hello.html?foo=12&bar", ".html", true)]
+        [TestCase("http://www.google.com/mail/hello.html?foo=12&bar=34", ".html", true)]
+        [TestCase("http://www.google.com/mail/hello.html?foo", ".html", true)]
+        [TestCase("http://www.google.com/mail/hello.html?foo#anchor", ".html", true)]
+        [TestCase("http://www.google.com/mail/hello.html?foo=12", ".html", true)]
+        [TestCase("http://www.google.com/mail/hello.html?foo=12#anchor", ".html", true)]
+        [TestCase("http://www.google.com/mail/hello.html?foo=12&bar", ".html", true)]
+        [TestCase("http://www.google.com/mail/hello.html?foo=12&bar=34", ".html", true)]
+        [TestCase("http://www.google.com/mail/hello.html?foo=12&bar=34#anchor", ".html", true)]
+        [TestCase("http://www.google.com/hello", "", false)]
+        [TestCase("http://www.google.com/mail#", "", false)]
+        [TestCase("http://www.google.com/mail#anchor", "", false)]
+        [TestCase("http://www.google.com/mail?", "", false)]
+        [TestCase("http://www.google.com/mail?#", "", false)]
+        [TestCase("http://www.google.com/mail?foo", "", false)]
+        [TestCase("http://www.google.com/mail?foo=12", "", false)]
+        [TestCase("http://www.google.com/mail?foo=12&bar", "", false)]
+        [TestCase("http://www.google.com/mail?foo=12&bar=34", "", false)]
+        [TestCase("http://www.google.com/mail?foo", "", false)]
+        [TestCase("http://www.google.com/mail?foo#anchor", "", false)]
+        [TestCase("http://www.google.com/mail?foo=12", "", false)]
+        [TestCase("http://www.google.com/mail?foo=12#anchor", "", false)]
+        [TestCase("http://www.google.com/mail?foo=12&bar", "", false)]
+        [TestCase("http://www.google.com/mail?foo=12&bar=34", "", false)]
+        [TestCase("http://www.google.com/mail?foo=12&bar=34#anchor", "", false)]
+        [TestCase("http://www.google.com/mail/", "", false)]
+        [TestCase("http://www.google.com/mail/#", "", false)]
+        [TestCase("http://www.google.com/mail/#anchor", "", false)]
+        [TestCase("http://www.google.com/mail/?", "", false)]
+        [TestCase("http://www.google.com/mail/?#", "", false)]
+        [TestCase("http://www.google.com/mail/?foo", "", false)]
+        [TestCase("http://www.google.com/mail/?foo=12", "", false)]
+        [TestCase("http://www.google.com/mail/?foo=12&bar", "", false)]
+        [TestCase("http://www.google.com/mail/?foo=12&bar=34", "", false)]
+        [TestCase("http://www.google.com/mail/?foo", "", false)]
+        [TestCase("http://www.google.com/mail/?foo#anchor", "", false)]
+        [TestCase("http://www.google.com/mail/?foo=12", "", false)]
+        [TestCase("http://www.google.com/mail/?foo=12#anchor", "", false)]
+        [TestCase("http://www.google.com/mail/?foo=12&bar", "", false)]
+        [TestCase("http://www.google.com/mail/?foo=12&bar=34", "", false)]
+        [TestCase("http://www.google.com/mail/?foo=12&bar=34#anchor", "", false)]
+        [TestCase("/", "", false)]
+        [TestCase("/mail", "", false)]
+        [TestCase("/mail/", "", false)]
+        [TestCase("/hello.html", ".html", true)]
+        [TestCase("/mail/hello.htm", ".htm", true)]
+        [TestCase("/mail/hello.html", ".html", true)]
+        [TestCase("/mail/hello.html#", ".html", true)]
+        [TestCase("/mail/hello.html#anchor", ".html", true)]
+        [TestCase("/mail/hello.html?", ".html", true)]
+        [TestCase("/mail/hello.html?#", ".html", true)]
+        [TestCase("/mail/hello.html?foo", ".html", true)]
+        [TestCase("/mail/hello.html?foo=12", ".html", true)]
+        [TestCase("/mail/hello.html?foo=12&bar", ".html", true)]
+        [TestCase("/mail/hello.html?foo=12&bar=34", ".html", true)]
+        [TestCase("/mail/hello.html?foo", ".html", true)]
+        [TestCase("/mail/hello.html?foo#anchor", ".html", true)]
+        [TestCase("/mail/hello.html?foo=12", ".html", true)]
+        [TestCase("/mail/hello.html?foo=12#anchor", ".html", true)]
+        [TestCase("/mail/hello.html?foo=12&bar", ".html", true)]
+        [TestCase("/mail/hello.html?foo=12&bar=34", ".html", true)]
+        [TestCase("/mail/hello.html?foo=12&bar=34#anchor", ".html", true)]
+        [TestCase("/hello", "", false)]
+        [TestCase("/mail#", "", false)]
+        [TestCase("/mail#anchor", "", false)]
+        [TestCase("/mail?", "", false)]
+        [TestCase("/mail?#", "", false)]
+        [TestCase("/mail?foo", "", false)]
+        [TestCase("/mail?foo=12", "", false)]
+        [TestCase("/mail?foo=12&bar", "", false)]
+        [TestCase("/mail?foo=12&bar=34", "", false)]
+        [TestCase("/mail?foo", "", false)]
+        [TestCase("/mail?foo#anchor", "", false)]
+        [TestCase("/mail?foo=12", "", false)]
+        [TestCase("/mail?foo=12#anchor", "", false)]
+        [TestCase("/mail?foo=12&bar", "", false)]
+        [TestCase("/mail?foo=12&bar=34", "", false)]
+        [TestCase("/mail?foo=12&bar=34#anchor", "", false)]
+        [TestCase("/mail/", "", false)]
+        [TestCase("/mail/#", "", false)]
+        [TestCase("/mail/#anchor", "", false)]
+        [TestCase("/mail/?", "", false)]
+        [TestCase("/mail/?#", "", false)]
+        [TestCase("/mail/?foo", "", false)]
+        [TestCase("/mail/?foo=12", "", false)]
+        [TestCase("/mail/?foo=12&bar", "", false)]
+        [TestCase("/mail/?foo=12&bar=34", "", false)]
+        [TestCase("/mail/?foo", "", false)]
+        [TestCase("/mail/?foo#anchor", "", false)]
+        [TestCase("/mail/?foo=12", "", false)]
+        [TestCase("/mail/?foo=12#anchor", "", false)]
+        [TestCase("/mail/?foo=12&bar", "", false)]
+        [TestCase("/mail/?foo=12&bar=34", "", false)]
+        [TestCase("/mail/?foo=12&bar=34#anchor", "", false)]
+        public void Extension_HasExtension(String urlText, String expectedResult1, bool expectedResult2)
+        {
+            var url = new Url(urlText);
+
+            Assert.AreEqual(expectedResult1, url.Extension);
+            Assert.AreEqual(expectedResult2, url.HasExtension);
+        }
+    }
+}
