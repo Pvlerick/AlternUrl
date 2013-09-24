@@ -8,13 +8,19 @@ type public UrlKind =
     | Absolute = 1
 
 type public Url(url:string) = 
-    do
-        if not(Regex.IsMatch(url, "/^([!#$&-;=?-[]_a-z~]|%[0-9a-fA-F]{2})+$/")) then raise(ArgumentException("url", "Invalid URL characters present"))
+    //do
+        //if not(Regex.IsMatch(url, "/^([!#$&-;=?-[]_a-z~]|%[0-9a-fA-F]{2})+$/")) then raise(ArgumentException("url", "Invalid URL characters present"))
+    let kind = if url.StartsWith("http") then UrlKind.Absolute else UrlKind.Relative
+    let urlForUriBuilder = if kind = UrlKind.Absolute then url else String.Format("http://www.google.com/{0}", url.TrimStart('/'))
 
-    member x.Kind = if url.StartsWith("http") then UrlKind.Absolute else UrlKind.Relative
+    member x.Kind = kind
+    
+    //Builder is always build using a "fake" host if relatice, so we can leverage Uri/UriBuilder members
+    member x.UriBuilder = new UriBuilder(urlForUriBuilder)
 
-    member x.UriBuilder = new UriBuilder(url)
-    member x.ToUri = x.UriBuilder.Uri
+    member x.ToUri = 
+        if x.Kind = UrlKind.Absolute then x.UriBuilder.Uri
+        else new Uri(url, UriKind.Relative)
 
     //Mostly delegated to UriBuilder
     member x.Scheme = if x.Kind = UrlKind.Absolute then x.UriBuilder.Scheme else raise(NotSupportedException("Not supported for a relative URL"))

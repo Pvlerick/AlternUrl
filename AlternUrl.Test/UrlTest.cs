@@ -132,12 +132,49 @@ namespace AlternUrl.Test
         [TestCase("/mail/?foo=12&bar", "", false)]
         [TestCase("/mail/?foo=12&bar=34", "", false)]
         [TestCase("/mail/?foo=12&bar=34#anchor", "", false)]
-        public void Extension_HasExtension(String urlText, String expectedResult1, bool expectedResult2)
+        public void Extension_And_HasExtension(String urlText, String expectedResult1, bool expectedResult2)
         {
             var url = new Url(urlText);
 
             Assert.AreEqual(expectedResult1, url.Extension);
             Assert.AreEqual(expectedResult2, url.HasExtension);
+        }
+
+        [TestCase("http://root:mypass@www.google.com/mail/?foo=12&bar=34#anchor", "http", "root", "mypass", "www.google.com", 80, "/mail/", "?foo=12&bar=34", "#anchor")]
+        [TestCase("http://root:mypass@www.google.com:90/mail/?foo=12&bar=34#anchor", "http", "root", "mypass", "www.google.com", 90, "/mail/", "?foo=12&bar=34", "#anchor")]
+        [TestCase("https://root:mypass@www.google.com/mail/?foo=12&bar=34#anchor", "https", "root", "mypass", "www.google.com", 443, "/mail/", "?foo=12&bar=34", "#anchor")]
+        [TestCase("https://root:mypass@www.google.com:444/mail/?foo=12&bar=34#anchor", "https", "root", "mypass", "www.google.com", 444, "/mail/", "?foo=12&bar=34", "#anchor")]
+        public void UriBuilderMembers_AbsoluteUrl(String urlText, String expectedScheme, String expectedUserName, String expectedPassword, String expectedHost, int expectedPort, String expectedPath, String expectedQuery, String expectedFragment)
+        {
+            var url = new Url(urlText);
+
+            Assert.AreEqual(expectedScheme, url.Scheme);
+            Assert.AreEqual(expectedUserName, url.UserName);
+            Assert.AreEqual(expectedPassword, url.Password);
+            Assert.AreEqual(expectedHost, url.Host);
+            Assert.AreEqual(expectedPort, url.Port);
+            Assert.AreEqual(expectedPath, url.Path);
+            Assert.AreEqual(expectedQuery, url.Query);
+            Assert.AreEqual(expectedFragment, url.Fragment);
+
+            Assert.AreEqual(urlText, url.ToUri.ToString());
+        }
+
+        [TestCase("/mail/?foo=12&bar=34#anchor", "http", "root", "mypass", "google.com", 80, "/mail/", "?foo=12&bar=34", "#anchor")]
+        public void UriBuilderMembers_RelativeUrl(String urlText, String expectedScheme, String expectedUserName, String expectedPassword, String expectedHost, int expectedPort, String expectedPath, String expectedQuery, String expectedFragment)
+        {
+            var url = new Url(urlText);
+
+            Assert.Throws<NotSupportedException>(() => { var x = url.Scheme; });
+            Assert.Throws<NotSupportedException>(() => { var x = url.UserName; });
+            Assert.Throws<NotSupportedException>(() => { var x = url.Password; });
+            Assert.Throws<NotSupportedException>(() => { var x = url.Host; });
+            Assert.Throws<NotSupportedException>(() => { var x = url.Port; });
+            Assert.AreEqual(expectedPath, url.Path);
+            Assert.AreEqual(expectedQuery, url.Query);
+            Assert.AreEqual(expectedFragment, url.Fragment);
+
+            Assert.AreEqual(urlText, url.ToUri.ToString());
         }
     }
 }
