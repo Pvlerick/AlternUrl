@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AlternUrl.Test
 {
-    public class UrlTest
+    public class Class1
     {
     }
 }
