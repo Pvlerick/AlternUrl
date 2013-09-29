@@ -1,6 +1,7 @@
 ﻿namespace AlternUrl
 
 open System
+open System.Linq
 open System.Text.RegularExpressions
 
 type public UrlKind =
@@ -17,6 +18,9 @@ type public Url(url:string) =
     
     //Builder is always build using a "fake" host if relatice, so we can leverage Uri/UriBuilder members
     member private x.UriBuilder = new UriBuilder(urlForUriBuilder)
+    member private x.Parameters = x.UriBuilder.Query.TrimStart('?').Split('&')
+                                    |> Seq.map (fun x -> x.Split('=').[0], x.Split('=').[0])
+                                    |> dict
 
     member x.ToUri() = 
         if x.Kind = UrlKind.Absolute then x.UriBuilder.Uri
@@ -86,3 +90,16 @@ type public Url(url:string) =
         if x.Kind = UrlKind.Absolute
             then if url.StartsWith("https") then true else false
             else raise(NotSupportedException("Not supported for a relative URL"))
+
+    member x.HasParameter param =
+        x.Parameters.ContainsKey(param)
+
+    member x.AddParameter (param, value) =
+        x.Parameters.[param] <- value
+
+    member x.RemoveParameter param =
+        x.SetParameter(param, "")
+
+    member x.SetParameter (param, value) =
+        if x.HasParameter(param) then x.Parameters.[param] <- value
+        else raise(ArgumentException("param", "parameter is not present in the query string"))

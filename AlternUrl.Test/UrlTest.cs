@@ -225,5 +225,32 @@ namespace AlternUrl.Test
 
             Assert.Throws<NotSupportedException>(() => { var x = url.IsHttps; });
         }
+
+        [TestCase("/mail/?foo", "foo", true)]
+        [TestCase("/mail/?foo=12", "foo", true)]
+        [TestCase("/mail/?foo&bar", "foo", true)]
+        [TestCase("/mail/?foo&bar=13", "foo", true)]
+        [TestCase("/mail/?foo=12&bar=13", "foo", true)]
+        [TestCase("/mail/?foo#anchor", "foo", true)]
+        [TestCase("/mail/?foo=12#anchor", "foo", true)]
+        [TestCase("https://www.google.com/mail/?foo", "foo", true)]
+        [TestCase("https://www.google.com/mail/?foo=12", "foo", true)]
+        [TestCase("https://www.google.com/mail/?foo&bar", "foo", true)]
+        [TestCase("https://www.google.com/mail/?foo&bar=13", "foo", true)]
+        [TestCase("https://www.google.com/mail/?foo=12&bar=13", "foo", true)]
+        [TestCase("https://www.google.com/mail/?foo#anchor", "foo", true)]
+        [TestCase("https://www.google.com/mail/?foo=12#anchor", "foo", true)]
+        [TestCase("/mail/?bar", "foo", false)]
+        [TestCase("/mail/?bar=13", "foo", false)]
+        [TestCase("/mail/?bar=13#anchor", "foo", false)]
+        [TestCase("https://www.google.com/mail/?bar", "foo", false)]
+        [TestCase("https://www.google.com/mail/?bar=13", "foo", false)]
+        [TestCase("https://www.google.com/mail/?bar=13#anchor", "foo", false)]
+        public void HasParameter(String urlText, String parameter, bool expectedResult)
+        {
+            var url = new Url(urlText);
+
+            Assert.AreEqual(expectedResult, url.HasParameter(parameter));
+        }
     }
 }
