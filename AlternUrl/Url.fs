@@ -14,16 +14,23 @@ type public Url(url:string) =
     let kind = if url.StartsWith("http") then UrlKind.Absolute else UrlKind.Relative
     let urlForUriBuilder = if kind = UrlKind.Absolute then url else String.Format("http://www.google.com/{0}", url.TrimStart('/')) //Builder is always build using a "fake" host if relatice, so we can leverage Uri/UriBuilder members
     let uriBuilder = new UriBuilder(urlForUriBuilder)
-    let mutable parametersIndex = 0
+    let mutable parametersIndex = 1
     let mutable parameters =
         seq {
             for s in uriBuilder.Query.TrimStart('?').Split('&') do
+                let i = parametersIndex
+                parametersIndex <- parametersIndex + 1
                 match s.Split('=') with
-                    | [|param; arg|] -> yield (param, arg)
-                    | [|param|] -> yield (param, "")
-                    | _ -> yield ("", "") }
-        |> Seq.filter (fun (param, arg) -> not(String.IsNullOrWhiteSpace(param) && String.IsNullOrWhiteSpace(arg)))
+                    | [|param; arg|] -> yield (param, (arg, i))
+                    | [|param|] -> yield (param, ("", i))
+                    | _ -> yield ("", ("", 0)) }
+        |> Seq.filter (fun (_, (_, index)) -> not(index = 0))
         |> Map.ofSeq
+
+    member private x.NextParameterIndex = 
+        let i = parametersIndex
+        parametersIndex <- parametersIndex + 1
+        i
 
     member x.Kind = kind
     member private x.UriBuilder = uriBuilder
@@ -67,8 +74,11 @@ type public Url(url:string) =
         let q =
             seq {
                 for p in parameters do
-                    if p.Value = "" then yield p.Key
-                    else yield String.Format("{0}={1}", p.Key, p.Value) }
+                    let (arg, i) = p.Value
+                    if arg = "" then yield (p.Key, i)
+                    else yield (String.Format("{0}={1}", p.Key, arg), i) }
+            |> Seq.sortBy (fun (_, i) -> i)
+            |> Seq.map (fun (e, _) -> e)
             |> String.concat "&"
         x.UriBuilder.Query <- q
         x.UriBuilder.Query
@@ -103,7 +113,8 @@ type public Url(url:string) =
 
     member x.AddParameter (param, value) =
         if parameters.ContainsKey(param) then raise(ArgumentException("param", "Parameter is already present in the query string"))
-        parameters <- parameters.Add(param, value)
+        let valueAndIndex = (value, x.NextParameterIndex)
+        parameters <- parameters.Add(param, valueAndIndex)
         x
 
     member x.AddParameter param =
@@ -117,7 +128,8 @@ type public Url(url:string) =
     /// <summary>Changes the value of a parameter, throws an exception if the parameter is not already present</summary>
     member x.SetParameter (param, value) =
         if not(x.HasParameter(param)) then raise(ArgumentException("param", "Parameter is not present in the query string"))
-        parameters <- parameters.Add(param, value)
+        let valueAndIndex = (value, x.NextParameterIndex)
+        parameters <- parameters.Add(param, valueAndIndex)
         x
 
     member x.AddOrSetParameter(param, value) =
