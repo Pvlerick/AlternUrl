@@ -1,7 +1,7 @@
 ﻿namespace AlternUrl
 
 open System
-open System.Linq
+open System.Collections.Generic
 open System.Text.RegularExpressions
 
 type public UrlKind =
@@ -18,15 +18,8 @@ type public Url(url:string) =
     
     //Builder is always build using a "fake" host if relatice, so we can leverage Uri/UriBuilder members
     member private x.UriBuilder = new UriBuilder(urlForUriBuilder)
-    member private x.Parameters = x.UriBuilder.Query.TrimStart('?').Split('&')
-                                    |> Seq.map (fun x -> x.Split('=').[0], x.Split('=').[0])
-                                    |> dict
 
-    member x.ToUri() = 
-        if x.Kind = UrlKind.Absolute then x.UriBuilder.Uri
-        else new Uri(url, UriKind.Relative)
-
-    //Mostly delegated to UriBuilder
+    //#region Mostly delegated to UriBuilder
     member x.Scheme
         with public get() =
             if x.Kind = UrlKind.Absolute then x.UriBuilder.Scheme else raise(NotSupportedException("Not supported for a relative URL"))
@@ -63,7 +56,8 @@ type public Url(url:string) =
 
     member x.Query
         with public get() = x.UriBuilder.Query
-        and public set query = x.UriBuilder.Query <- query
+        and public set query =
+            x.UriBuilder.Query <- query
 
     member x.PathAndQuery
         with public get() = x.UriBuilder.Uri.PathAndQuery
@@ -73,12 +67,27 @@ type public Url(url:string) =
                 | 1 -> x.Path <- pathAndQuery
                        x.Query <- ""
                 | 2 -> x.Path <- split.[0]
-                       x.Query <- split.[1]
+                       x.Query <- "?" + split.[1]
                 | _ -> raise(ArgumentException("PathAndQuery is not valid :" + split.Length.ToString()))
 
     member x.Fragment
         with public get() = x.UriBuilder.Fragment
         and public set fragment = x.UriBuilder.Fragment <- fragment
+    //#endregion
+
+    member private x.Parameters =
+        seq {
+            for s in x.Query.TrimStart('?').Split('&') do
+                match s.Split('=') with
+                    | [|param; arg|] -> yield (param, arg)
+                    | [|param|] -> yield (param, "")
+                    | _ -> yield ("", "") }
+        |> Seq.filter (fun (param, arg) -> not(String.IsNullOrWhiteSpace(param) && String.IsNullOrWhiteSpace(arg)))
+        |> Map.ofSeq
+
+    member x.ToUri() = 
+        if x.Kind = UrlKind.Absolute then x.UriBuilder.Uri
+        else new Uri(url, UriKind.Relative)
 
     member x.Extension = IO.Path.GetExtension(x.Path)
     member x.HasExtension = x.Extension <> ""
@@ -94,12 +103,16 @@ type public Url(url:string) =
     member x.HasParameter param =
         x.Parameters.ContainsKey(param)
 
+    member x.TestParameters =
+        x.Parameters
+        |> Map.toArray
+
     member x.AddParameter (param, value) =
         x.Parameters.[param] <- value
 
-    member x.RemoveParameter param =
-        x.SetParameter(param, "")
+//    member x.RemoveParameter param =
+//        x.SetParameter(param, "")
 
-    member x.SetParameter (param, value) =
-        if x.HasParameter(param) then x.Parameters.[param] <- value
-        else raise(ArgumentException("param", "parameter is not present in the query string"))
+//    member x.SetParameter (param, value) =
+//        if x.HasParameter(param) then x.Parameters.[param] <- value
+//        else raise(ArgumentException("param", "parameter is not present in the query string"))

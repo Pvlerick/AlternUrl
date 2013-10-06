@@ -249,7 +249,7 @@ namespace AlternUrl.Test
         public void HasParameter(String urlText, String parameter, bool expectedResult)
         {
             var url = new Url(urlText);
-
+            
             Assert.AreEqual(expectedResult, url.HasParameter(parameter));
         }
     }
