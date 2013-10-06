@@ -179,25 +179,6 @@ namespace AlternUrl.Test
             Assert.AreEqual(urlText, url.ToUri().ToString());
         }
 
-
-        [TestCase("http://www.google.com", "/mail/index.html", "foo=bar")]
-        [TestCase("http://www.google.com/", "/mail/index.html", "foo=bar")]
-        [TestCase("http://www.google.com/test/", "/mail/index.html", "foo=bar")]
-        [TestCase("http://www.google.com/test/home", "/mail/index.html", "foo=bar")]
-        [TestCase("http://www.google.com/test/home.html", "/mail/index.html", "foo=bar")]
-        [TestCase("http://root:mypass@www.google.com/mail/?foo=12&bar=34#anchor", "/mail/index.html", "foo=bar")]
-        [TestCase("/mail/index.html", "/mail/index.html", "foo=12&bar=34")]
-        public void PathAndQuery_Set(String urlText, String expectedPath, String expectedQuery)
-        {
-            var url = new Url(urlText);
-            //url.PathAndQuery = expectedPath + "?" + expectedQuery; ;
-            url.Path = expectedPath;
-            url.Query = expectedQuery;
-
-            Assert.AreEqual(expectedPath, url.Path);
-            Assert.AreEqual(expectedQuery, "?" + url.Query);
-        }
-
         [TestCase("http://root:mypass@www.google.com/mail/?foo=12&bar=34#anchor", UriKind.Absolute)]
         [TestCase("/mail/?foo=12&bar=34#anchor", UriKind.Relative)]
         [TestCase("mail/?foo=12&bar=34#anchor", UriKind.Relative)]
@@ -251,6 +232,52 @@ namespace AlternUrl.Test
             var url = new Url(urlText);
             
             Assert.AreEqual(expectedResult, url.HasParameter(parameter));
+        }
+
+        [TestCase("/mail/?foo", "bar", "", "?foo&bar", "/mail/?foo&bar", "/mail/?foo&bar")]
+        [TestCase("/mail/?foo", "bar", "12", "?foo&bar=12", "/mail/?foo&bar=12", "/mail/?foo&bar=12")]
+        [TestCase("/mail/?foo=12", "bar", "13", "?foo=12&bar=13", "/mail/?foo=12&bar=13", "/mail/?foo=12&bar=13")]
+        //[TestCase("/mail/?foo&bar", "foobar", "42", "?foo&bar&foobar=42", "/mail/?foo&bar&foobar=42", "/mail/?foo&bar&foobar=42")]
+        //[TestCase("/mail/?foo&bar=13", "foobar", "42", "?bar=13", "/mail/?bar=13", "/mail/?bar=13")]
+        //[TestCase("/mail/?foo=12&bar=13", "foobar", "42", "?foo=12&bar=13&foobar=42", "/mail/?foo=12&bar=13&foobar=42", "/mail/?foo=12&bar=13&foobar=42")]
+        //[TestCase("/mail/?foo#anchor", "bar", "", "?foo&bar", "/mail/?foo&bar", "/mail/?foo&bar#anchor")]
+        //[TestCase("/mail/?foo#anchor", "bar", "12", "?foo&bar=12", "/mail/?foo&bar=12", "/mail/?foo&bar=12#anchor")]
+        //[TestCase("/mail/?foo=12#anchor", "bar", "13", "?foo=12&bar=13", "/mail/?foo=12&bar=13", "/mail/?foo=12&bar=13#anchor")]
+        //[TestCase("/mail/?foo=12&bar=13#anchor", "foobar", "42", "?foo=12&bar=13&foobar=42", "/mail/?foo=12&bar=13&foobar=42", "/mail/?foo=12&bar=13&foobar=42#anchor")]
+        public void AddParameter(String urlText, String parameter, String argument, String expectedQuery, String expectedPathAndQuery, String expectedPathAndQueryAndFragment)
+        {
+            var url = new Url(urlText).AddParameter(parameter, argument);
+
+            Assert.AreEqual(expectedQuery, url.Query);
+            Assert.AreEqual(expectedPathAndQuery, url.PathAndQuery);
+            Assert.AreEqual(expectedPathAndQueryAndFragment, url.PathAndQueryAndFragment);
+        }
+
+        [TestCase("/mail/?foo", "foo", "", "/mail/", "/mail/")]
+        [TestCase("/mail/?foo=12", "foo", "", "/mail/", "/mail/")]
+        //[TestCase("/mail/?foo&bar", "foo", "?bar", "/mail/?bar", "/mail/?bar")]
+        //[TestCase("/mail/?foo&bar=13", "foo", "?bar=13", "/mail/?bar=13", "/mail/?bar=13")]
+        //[TestCase("/mail/?foo=12&bar=13", "foo", "?bar=13", "/mail/?bar=13", "/mail/?bar=13")]
+        //[TestCase("/mail/?foo#anchor", "foo", "", "/mail/", "/mail/#anchor")]
+        //[TestCase("/mail/?foo=12#anchor", "foo", "", "/mail/", "/mail/#anchor")]
+        //[TestCase("/mail/?bar=12#anchor", "foo", "?bar=12", "/mail/?bar=12", "/mail/?bar=12#anchor")]
+        //[TestCase("https://www.google.com/mail/?foo", "foo", "", "/mail/", "/mail/")]
+        //[TestCase("https://www.google.com/mail/?foo=12", "foo", "", "/mail/", "/mail/")]
+        //[TestCase("https://www.google.com/mail/?foo&bar", "foo", "?bar", "/mail/?bar", "/mail/?bar")]
+        //[TestCase("https://www.google.com/mail/?foo&bar=13", "foo", "?bar=13", "/mail/?bar=13", "/mail/?bar=13")]
+        //[TestCase("https://www.google.com/mail/?foo=12&bar=13", "foo", "?bar=13", "/mail/?bar=13", "/mail/?bar=13")]
+        //[TestCase("https://www.google.com/mail/?foo#anchor", "foo", "", "/mail/", "/mail/#anchor")]
+        //[TestCase("https://www.google.com/mail/?foo=12#anchor", "foo", "", "/mail/", "/mail/#anchor")]
+        //[TestCase("https://www.google.com/mail/?bar=12#anchor", "foo", "?bar=12", "/mail/?bar=12", "/mail/?bar=12#anchor")]
+        //[TestCase("/mail/?foo=42&bar=18&fb=45&babar=78", "fb", "?foo=42&bar=18&babar=78", "/mail/?foo=42&bar=18&babar=78", "/mail/?foo=42&bar=18&babar=78")] //To test parameters order
+        //[TestCase("/mail/?foo=42&bar=18&fb=45&babar=78", "bar", "?foo=42&fb=45&babar=78", "/mail/?foo=42&fb=45&babar=78", "/mail/?foo=42&fb=45&babar=78")] //To test parameters order
+        public void RemoveParameter(String urlText, String parameter, String expectedQuery, String expectedPathAndQuery, String expectedPathAndQueryAndFragment)
+        {
+            var url = new Url(urlText).RemoveParameter(parameter);
+
+            Assert.AreEqual(expectedQuery, url.Query);
+            Assert.AreEqual(expectedPathAndQuery, url.PathAndQuery);
+            Assert.AreEqual(expectedPathAndQueryAndFragment, url.PathAndQueryAndFragment);
         }
     }
 }

@@ -12,12 +12,21 @@ type public Url(url:string) =
     //do
         //if not(Regex.IsMatch(url, "/^([!#$&-;=?-[]_a-z~]|%[0-9a-fA-F]{2})+$/")) then raise(ArgumentException("url", "Invalid URL characters present"))
     let kind = if url.StartsWith("http") then UrlKind.Absolute else UrlKind.Relative
-    let urlForUriBuilder = if kind = UrlKind.Absolute then url else String.Format("http://www.google.com/{0}", url.TrimStart('/'))
+    let urlForUriBuilder = if kind = UrlKind.Absolute then url else String.Format("http://www.google.com/{0}", url.TrimStart('/')) //Builder is always build using a "fake" host if relatice, so we can leverage Uri/UriBuilder members
+    let uriBuilder = new UriBuilder(urlForUriBuilder)
+    let mutable parametersIndex = 0
+    let mutable parameters =
+        seq {
+            for s in uriBuilder.Query.TrimStart('?').Split('&') do
+                match s.Split('=') with
+                    | [|param; arg|] -> yield (param, arg)
+                    | [|param|] -> yield (param, "")
+                    | _ -> yield ("", "") }
+        |> Seq.filter (fun (param, arg) -> not(String.IsNullOrWhiteSpace(param) && String.IsNullOrWhiteSpace(arg)))
+        |> Map.ofSeq
 
     member x.Kind = kind
-    
-    //Builder is always build using a "fake" host if relatice, so we can leverage Uri/UriBuilder members
-    member private x.UriBuilder = new UriBuilder(urlForUriBuilder)
+    member private x.UriBuilder = uriBuilder
 
     //#region Mostly delegated to UriBuilder
     member x.Scheme
@@ -54,36 +63,26 @@ type public Url(url:string) =
         with public get() = x.UriBuilder.Path
         and public set path = x.UriBuilder.Path <- path
 
-    member x.Query
-        with public get() = x.UriBuilder.Query
-        and public set query =
-            x.UriBuilder.Query <- query
+    member x.Query =
+        let q =
+            seq {
+                for p in parameters do
+                    if p.Value = "" then yield p.Key
+                    else yield String.Format("{0}={1}", p.Key, p.Value) }
+            |> String.concat "&"
+        x.UriBuilder.Query <- q
+        x.UriBuilder.Query
 
-    member x.PathAndQuery
-        with public get() = x.UriBuilder.Uri.PathAndQuery
-        and public set(pathAndQuery:string) =
-            let split = pathAndQuery.Split('?')
-            match split.Length with
-                | 1 -> x.Path <- pathAndQuery
-                       x.Query <- ""
-                | 2 -> x.Path <- split.[0]
-                       x.Query <- "?" + split.[1]
-                | _ -> raise(ArgumentException("PathAndQuery is not valid :" + split.Length.ToString()))
+    member x.PathAndQuery =
+        x.Path + x.Query
+
+    member x.PathAndQueryAndFragment =
+        x.Path + x.Query + x.Fragment
 
     member x.Fragment
         with public get() = x.UriBuilder.Fragment
         and public set fragment = x.UriBuilder.Fragment <- fragment
     //#endregion
-
-    member private x.Parameters =
-        seq {
-            for s in x.Query.TrimStart('?').Split('&') do
-                match s.Split('=') with
-                    | [|param; arg|] -> yield (param, arg)
-                    | [|param|] -> yield (param, "")
-                    | _ -> yield ("", "") }
-        |> Seq.filter (fun (param, arg) -> not(String.IsNullOrWhiteSpace(param) && String.IsNullOrWhiteSpace(arg)))
-        |> Map.ofSeq
 
     member x.ToUri() = 
         if x.Kind = UrlKind.Absolute then x.UriBuilder.Uri
@@ -96,23 +95,31 @@ type public Url(url:string) =
     member x.HasFragment = x.Fragment <> ""
 
     member x.IsHttps =
-        if x.Kind = UrlKind.Absolute
-            then if url.StartsWith("https") then true else false
-            else raise(NotSupportedException("Not supported for a relative URL"))
+        if x.Kind = UrlKind.Absolute then if url.StartsWith("https") then true else false
+        else raise(NotSupportedException("Not supported for a relative URL"))
 
     member x.HasParameter param =
-        x.Parameters.ContainsKey(param)
-
-    member x.TestParameters =
-        x.Parameters
-        |> Map.toArray
+        parameters.ContainsKey(param)
 
     member x.AddParameter (param, value) =
-        x.Parameters.[param] <- value
+        if parameters.ContainsKey(param) then raise(ArgumentException("param", "Parameter is already present in the query string"))
+        parameters <- parameters.Add(param, value)
+        x
 
-//    member x.RemoveParameter param =
-//        x.SetParameter(param, "")
+    member x.AddParameter param =
+        x.AddParameter(param, "")
 
-//    member x.SetParameter (param, value) =
-//        if x.HasParameter(param) then x.Parameters.[param] <- value
-//        else raise(ArgumentException("param", "parameter is not present in the query string"))
+    member x.RemoveParameter param =
+        if not(parameters.ContainsKey(param)) then raise(ArgumentException("param", "Parameter is not present in the query string"))
+        parameters <- parameters.Remove(param)
+        x
+
+    /// <summary>Changes the value of a parameter, throws an exception if the parameter is not already present</summary>
+    member x.SetParameter (param, value) =
+        if not(x.HasParameter(param)) then raise(ArgumentException("param", "Parameter is not present in the query string"))
+        parameters <- parameters.Add(param, value)
+        x
+
+    member x.AddOrSetParameter(param, value) =
+        if parameters.ContainsKey(param) then x.SetParameter(param, value)
+        else x.AddParameter(param, value)
