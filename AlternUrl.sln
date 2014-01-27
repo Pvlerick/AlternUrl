@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Express 2012 for Web
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "AlternUrl", "AlternUrl\AlternUrl.fsproj", "{8AAD1A27-3D15-4A1B-AC61-94165B93E329}"
-EndProject
+# Visual Studio Express 2013 for Windows Desktop
+VisualStudioVersion = 12.0.30110.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlternUrl.Test", "AlternUrl.Test\AlternUrl.Test.csproj", "{EF8FE2F5-FC0D-400F-8C7E-63539AD5A831}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlternUrl", "AlternUrl\AlternUrl.csproj", "{A3630DA2-96A6-4788-A024-9606C01B6C3A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,14 +13,14 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{8AAD1A27-3D15-4A1B-AC61-94165B93E329}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8AAD1A27-3D15-4A1B-AC61-94165B93E329}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8AAD1A27-3D15-4A1B-AC61-94165B93E329}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8AAD1A27-3D15-4A1B-AC61-94165B93E329}.Release|Any CPU.Build.0 = Release|Any CPU
 		{EF8FE2F5-FC0D-400F-8C7E-63539AD5A831}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{EF8FE2F5-FC0D-400F-8C7E-63539AD5A831}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EF8FE2F5-FC0D-400F-8C7E-63539AD5A831}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EF8FE2F5-FC0D-400F-8C7E-63539AD5A831}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A3630DA2-96A6-4788-A024-9606C01B6C3A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3630DA2-96A6-4788-A024-9606C01B6C3A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3630DA2-96A6-4788-A024-9606C01B6C3A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3630DA2-96A6-4788-A024-9606C01B6C3A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
