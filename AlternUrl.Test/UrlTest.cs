@@ -155,63 +155,65 @@ namespace AlternUrl.Test
             var url = new Url(urlText);
 
             Assert.AreEqual(expectedScheme, url.Scheme);
-            //Assert.AreEqual(expectedUserName, url.UserName);
-            //Assert.AreEqual(expectedPassword, url.Password);
-            //Assert.AreEqual(expectedHost, url.Host);
-            //Assert.AreEqual(expectedPort, url.Port);
-            //Assert.AreEqual(expectedPath, url.Path);
+            Assert.AreEqual(expectedUserName, url.UserName);
+            Assert.AreEqual(expectedPassword, url.Password);
+            Assert.AreEqual(expectedHost, url.Host);
+            Assert.AreEqual(expectedPort, url.Port);
+            Assert.AreEqual(expectedPath, url.Path);
             //Assert.AreEqual(expectedQuery, url.Query);
-            //Assert.AreEqual(expectedFragment, url.Fragment);
+            Assert.AreEqual(expectedFragment, url.Fragment);
 
             Assert.AreEqual(urlText, url.ToUri().ToString());
         }
 
-        //[TestCase("/mail/?foo=12&bar=34#anchor",  "/mail/", "?foo=12&bar=34", "#anchor")]
-        //[TestCase("/mail/index.html?foo=12&bar=34#anchor", "/mail/index.html", "?foo=12&bar=34", "#anchor")]
-        //public void UriBuilderMembers_RelativeUrl(String urlText, String expectedPath, String expectedQuery, String expectedFragment)
-        //{
-        //    var url = new Url(urlText);
+        [TestCase("/mail/?foo=12&bar=34#anchor", "/mail/", "?foo=12&bar=34", "#anchor")]
+        [TestCase("/mail/index.html?foo=12&bar=34#anchor", "/mail/index.html", "?foo=12&bar=34", "#anchor")]
+        public void UriBuilderMembers_RelativeUrl(String urlText, String expectedPath, String expectedQuery, String expectedFragment)
+        {
+            var url = new Url(urlText);
 
-        //    Assert.Throws<NotSupportedException>(() => { var x = url.Scheme; });
-        //    Assert.Throws<NotSupportedException>(() => { var x = url.UserName; });
-        //    Assert.Throws<NotSupportedException>(() => { var x = url.Password; });
-        //    Assert.Throws<NotSupportedException>(() => { var x = url.Host; });
-        //    Assert.Throws<NotSupportedException>(() => { var x = url.Port; });
-        //    Assert.AreEqual(expectedPath, url.Path);
-        //    Assert.AreEqual(expectedQuery, url.Query);
-        //    Assert.AreEqual(expectedPath + expectedQuery, url.PathAndQuery);
-        //    Assert.AreEqual(expectedFragment, url.Fragment);
+            Assert.Throws<NotSupportedException>(() => { var x = url.Scheme; });
+            Assert.Throws<NotSupportedException>(() => { var x = url.UserName; });
+            Assert.Throws<NotSupportedException>(() => { var x = url.Password; });
+            Assert.Throws<NotSupportedException>(() => { var x = url.Host; });
+            Assert.Throws<NotSupportedException>(() => { var x = url.Port; });
+            Assert.AreEqual(expectedPath, url.Path);
+            Assert.AreEqual(expectedQuery, url.Query);
+            Assert.AreEqual(expectedPath + expectedQuery, url.PathAndQuery);
+            Assert.AreEqual(expectedFragment, url.Fragment);
 
-        //    Assert.AreEqual(urlText, url.ToUri().ToString());
-        //}
+            Assert.AreEqual(urlText, url.ToUri().ToString());
+        }
 
-        //[TestCase("http://root:mypass@www.google.com/mail/?foo=12&bar=34#anchor", UriKind.Absolute)]
-        //[TestCase("/mail/?foo=12&bar=34#anchor", UriKind.Relative)]
-        //[TestCase("mail/?foo=12&bar=34#anchor", UriKind.Relative)]
-        //public void ToUri(String urlText, UrlKind expectedKind)
-        //{
-        //    var uri = new Url(urlText).ToUri();
+        [TestCase("http://root:mypass@www.google.com/mail/?foo=12&bar=34#anchor", UriKind.Absolute)]
+        [TestCase("/mail/?foo=12&bar=34#anchor", UriKind.Relative)]
+        [TestCase("mail/?foo=12&bar=34#anchor", UriKind.Relative)]
+        public void ToUri(String urlText, UrlKind expectedKind)
+        {
+            var uri = new Url(urlText).ToUri();
 
-        //    Assert.AreEqual(urlText, uri.ToString());
-        //}
+            Assert.AreEqual(urlText, uri.ToString());
+        }
 
-        //[TestCase("http://www.google.com/mail/?foo=12&bar=34#anchor", false)]
-        //[TestCase("https://www.google.com/mail/?foo=12&bar=34#anchor", true)]
-        //public void IsHttps_AbsoluteUrl(String urlText, bool expectedResult)
-        //{
-        //    var url = new Url(urlText);
+        [TestCase("http://www.google.com/mail/?foo=12&bar=34#anchor", false)]
+        [TestCase("https://www.google.com/mail/?foo=12&bar=34#anchor", true)]
+        [TestCase("HTTP://www.google.com/mail/?foo=12&bar=34#anchor", false)]
+        [TestCase("HTTPS://www.google.com/mail/?foo=12&bar=34#anchor", true)]
+        public void IsHttps_AbsoluteUrl(String urlText, bool expectedResult)
+        {
+            var url = new Url(urlText);
 
-        //    Assert.AreEqual(expectedResult, url.IsHttps);
-        //}
+            Assert.AreEqual(expectedResult, url.IsHttps);
+        }
 
-        //[TestCase("/mail/?foo=12&bar=34#anchor", false)]
-        //[TestCase("mail/?foo=12&bar=34#anchor", false)]
-        //public void IsHttps_RelativeUrl(String urlText, bool expectedResult)
-        //{
-        //    var url = new Url(urlText);
+        [TestCase("/mail/?foo=12&bar=34#anchor", false)]
+        [TestCase("mail/?foo=12&bar=34#anchor", false)]
+        public void IsHttps_RelativeUrl(String urlText, bool expectedResult)
+        {
+            var url = new Url(urlText);
 
-        //    Assert.Throws<NotSupportedException>(() => { var x = url.IsHttps; });
-        //}
+            Assert.Throws<NotSupportedException>(() => { var x = url.IsHttps; });
+        }
 
         //[TestCase("/mail/?foo", "foo", true)]
         //[TestCase("/mail/?foo=12", "foo", true)]
@@ -236,7 +238,7 @@ namespace AlternUrl.Test
         //public void HasParameter(String urlText, String parameter, bool expectedResult)
         //{
         //    var url = new Url(urlText);
-            
+
         //    Assert.AreEqual(expectedResult, url.HasParameter(parameter));
         //}
 
