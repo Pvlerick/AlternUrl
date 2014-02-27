@@ -29,104 +29,175 @@ namespace AlternUrl
             //TODO
         }
 
+        private Url(UrlKind kind, String scheme, String userName, String password, String host, int port, String path, String query, String fragment)
+        {
+            this.Kind = kind;
+            this._scheme = scheme;
+            this._userName = userName;
+            this._password = password;
+            this._host = host;
+            this._port = port;
+            this._path = path;
+            this._query = query;
+            this._fragment = fragment;
+        }
+
         public UrlKind Kind { get; private set; }
         public String Extension { get { return System.IO.Path.GetExtension(this.Path); } }
         public bool HasExtension { get { return this.Extension != String.Empty; } }
 
-        #region Mostly delegated to UriBuilder...
+        #region Properties and Setters
 
+        #region Scheme
+        private readonly String _scheme;
+        
         public String Scheme
         {
             get
             {
-                if (this.Kind == UrlKind.Absolute) return this.uriBuilder.Scheme;
-                else throw new NotSupportedException("Not supported for a relative URL");
-            }
-            set
-            {
-                if (this.Kind == UrlKind.Absolute) this.uriBuilder.Scheme = value;
-                else throw new NotSupportedException("Not supported for a relative URL");
+                if (this.Kind == UrlKind.Relative) throw new NotSupportedException("Not supported for a relative URL");
+                else return this._scheme;
             }
         }
+
+        public Url WithScheme(String scheme)
+        {
+            if (this.Kind == UrlKind.Relative) throw new NotSupportedException("Not supported for a relative URL");
+            else return new Url(this.Kind, scheme, this.UserName, this.Password, this.Host, this.Port, this.Path, this.Query, this.Fragment);
+        }
+        #endregion
+
+        #region UserName
+        private readonly String _userName;
 
         public String UserName
         {
             get
             {
-                if (this.Kind == UrlKind.Absolute) return this.uriBuilder.UserName;
-                else throw new NotSupportedException("Not supported for a relative URL");
-            }
-            set
-            {
-                if (this.Kind == UrlKind.Absolute) this.uriBuilder.UserName = value;
-                else throw new NotSupportedException("Not supported for a relative URL");
+                if (this.Kind == UrlKind.Relative) throw new NotSupportedException("Not supported for a relative URL");
+                else return this._userName;
             }
         }
+
+        public Url WithUserName(String userName)
+        {
+            if (this.Kind == UrlKind.Relative) throw new NotSupportedException("Not supported for a relative URL");
+            else return new Url(this.Kind, this.Scheme, userName, this.Password, this.Host, this.Port, this.Path, this.Query, this.Fragment);
+        }
+        #endregion
+
+        #region Password
+        private readonly String _password;
 
         public String Password
         {
             get
             {
-                if (this.Kind == UrlKind.Absolute) return this.uriBuilder.Password;
-                else throw new NotSupportedException("Not supported for a relative URL");
-            }
-            set
-            {
-                if (this.Kind == UrlKind.Absolute) this.uriBuilder.Password = value;
-                else throw new NotSupportedException("Not supported for a relative URL");
+                if (this.Kind == UrlKind.Relative) throw new NotSupportedException("Not supported for a relative URL");
+                else return this._password;
             }
         }
+
+        public Url WithPassword(String password)
+        {
+            if (this.Kind == UrlKind.Relative) throw new NotSupportedException("Not supported for a relative URL");
+            else return new Url(this.Kind, this.Scheme, this.UserName, password, this.Host, this.Port, this.Path, this.Query, this.Fragment);
+        }
+        #endregion
+
+        #region Host
+        private readonly String _host;
 
         public String Host
         {
             get
             {
-                if (this.Kind == UrlKind.Absolute) return this.uriBuilder.Host;
-                else throw new NotSupportedException("Not supported for a relative URL");
-            }
-            set
-            {
-                if (this.Kind == UrlKind.Absolute) this.uriBuilder.Host = value;
-                else throw new NotSupportedException("Not supported for a relative URL");
+                if (this.Kind == UrlKind.Relative) throw new NotSupportedException("Not supported for a relative URL");
+                else return this._host;
             }
         }
+
+        public Url WithHost(String host)
+        {
+            if (this.Kind == UrlKind.Relative) throw new NotSupportedException("Not supported for a relative URL");
+            else return new Url(this.Kind, this.Scheme, this.UserName, this.Password, host, this.Port, this.Path, this.Query, this.Fragment);
+        }
+        #endregion
+
+        #region Port
+        private readonly int _port;
 
         public int Port
         {
             get
             {
-                if (this.Kind == UrlKind.Absolute) return this.uriBuilder.Port;
-                else throw new NotSupportedException("Not supported for a relative URL");
-            }
-            set
-            {
-                if (this.Kind == UrlKind.Absolute) this.uriBuilder.Port = value;
-                else throw new NotSupportedException("Not supported for a relative URL");
+                if (this.Kind == UrlKind.Relative) throw new NotSupportedException("Not supported for a relative URL");
+                else return this._port;
             }
         }
+
+        public Url WithPort(int port)
+        {
+            if (this.Kind == UrlKind.Relative) throw new NotSupportedException("Not supported for a relative URL");
+            else return new Url(this.Kind, this.Scheme, this.UserName, this.Password, this.Host, port, this.Path, this.Query, this.Fragment);
+        }
+        #endregion
+
+        #region Path
+        private readonly String _path;
 
         public String Path
         {
-            get { return this.uriBuilder.Path; }
-            set { this.uriBuilder.Path = value; }
+            get
+            {
+                return this._path;
+            }
         }
+
+        public Url WithPath(String path)
+        {
+            return new Url(this.Kind, this.Scheme, this.UserName, this.Password, this.Host, this.Port, path, this.Query, this.Fragment);
+        }
+        #endregion
+
+        #region Query
+        private readonly String _query;
 
         public String Query
         {
-            get { return uriBuilder.Query; }
-            set { this.uriBuilder.Query = value; }
+            get
+            {
+                return this._query;
+            }
         }
+
+        public Url WithQuery(String query)
+        {
+            return new Url(this.Kind, this.Scheme, this.UserName, this.Password, this.Host, this.Port, this.Path, query, this.Fragment);
+        }
+        #endregion
 
         public bool HasQuery
         {
             get { return String.IsNullOrWhiteSpace(this.Query); }
         }
 
+        #region Fragment
+        private readonly String _fragment;
+
         public String Fragment
         {
-            get { return this.uriBuilder.Fragment; }
-            set { this.uriBuilder.Fragment = value; }
+            get
+            {
+                return this._fragment;
+            }
         }
+
+        public Url WithFragment(String fragment)
+        {
+            return new Url(this.Kind, this.Scheme, this.UserName, this.Password, this.Host, this.Port, this.Path, this.Query, fragment);
+        }
+        #endregion
 
         public bool HasFragment
         {
@@ -135,12 +206,12 @@ namespace AlternUrl
 
         public String PathAndQuery
         {
-            get { return this.Path + this.Query; }
+            get { return this.Path + "?" + this.Query; }
         }
 
         public String PathAndQueryAndFragment
         {
-            get { return this.Path + this.Query + this.Fragment; }
+            get { return this.Path + "?" + this.Query + "#" + this.Fragment; }
         }
 
         public bool IsHttps
@@ -156,8 +227,7 @@ namespace AlternUrl
 
         public Uri ToUri()
         {
-            if (this.Kind == UrlKind.Absolute) return this.uriBuilder.Uri;
-            else return new Uri(url, UriKind.Relative);
+            return new Uri(this.ToString(), this.Kind.ToUriKind());
         }
 
         public bool HasParameter(String param)
