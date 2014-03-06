@@ -9,8 +9,6 @@ namespace AlternUrl
 {
     public class Url
     {
-        String url;
-
         int lastParameterIndex = 0;
 
         public Url(String url)
@@ -110,6 +108,7 @@ namespace AlternUrl
         #endregion
 
         #region Password
+        //TODO Use SecureString?
         private readonly String _password;
 
         public String Password
@@ -201,7 +200,7 @@ namespace AlternUrl
 
         public bool HasQuery
         {
-            get { return String.IsNullOrWhiteSpace(this.Query); }
+            get { return !String.IsNullOrWhiteSpace(this.Query); }
         }
         #endregion
 
@@ -223,7 +222,7 @@ namespace AlternUrl
 
         public bool HasFragment
         {
-            get { return String.IsNullOrWhiteSpace(this._fragment); }
+            get { return !String.IsNullOrWhiteSpace(this._fragment); }
         }
         #endregion
 
