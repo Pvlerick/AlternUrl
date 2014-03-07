@@ -1,18 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace AlternUrl
 {
-    public class Url
+    [ImmutableObject(true)]
+    public sealed class Url
     {
         int lastParameterIndex = 0;
 
-        public Url(String url)
+        public Url(String url, bool encoded = true)
         {
+            if (!encoded) url = HttpUtility.UrlEncode(url);
+
             this.Kind = Regex.IsMatch(url, "^https*://", RegexOptions.IgnoreCase) ? UrlKind.Absolute : UrlKind.Relative;
 
             //Use UriBuilder class for the heavy lifting (parsing, etc...) using a fake domain if the given url is relative
@@ -29,10 +34,7 @@ namespace AlternUrl
             this._fragment = uriBuilder.Fragment.TrimStart('#');
         }
 
-        public Url(Uri uri)
-        {
-            //TODO
-        }
+        public Url(Uri uri) : this(uri.ToString()) { }
 
         private Url(UrlKind kind, String scheme, String userName, String password, String host, int port, String path, String query, String fragment)
         {
@@ -66,8 +68,6 @@ namespace AlternUrl
         #region Properties and With() methods
 
         public UrlKind Kind { get; private set; }
-        public String Extension { get { return System.IO.Path.GetExtension(this.Path); } }
-        public bool HasExtension { get { return this.Extension != String.Empty; } }
 
         #region Scheme
         private readonly String _scheme;
@@ -236,6 +236,23 @@ namespace AlternUrl
             get { return this.PathAndQuery + (this.HasFragment ? "#" + this.Fragment : String.Empty); }
         }
 
+        public String Extension { get { return System.IO.Path.GetExtension(this.Path); } }
+        public bool HasExtension { get { return this.Extension != String.Empty; } }
+        public String FileName { get { return this.HasExtension ? System.IO.Path.GetFileNameWithoutExtension(this.Path) : String.Empty; } }
+        public bool HasFileName { get { return this.FileName != String.Empty; } }
+
+        //public bool HasFileNameAndExtension { get { return this.Extension != String.Empty; } }
+
+        //public Url WithFileNameAndExtension(String fileNameAndExtension)
+        //{
+        //    if (this.HasFileNameAndExtension)
+        //    { }
+        //    else
+        //    {
+        //        return new Url(this.Kind, this.Scheme, this.UserName, this.Password, this.Host, this.Port, this.Path, this.Query, this.Fragment);
+        //    }
+        //}
+
         public bool IsHttps
         {
             get
@@ -255,6 +272,9 @@ namespace AlternUrl
         public bool HasParameter(String param)
         {
             var parameters = this.BuildParametersDictionary();
+
+            Console.WriteLine("param: {0}", param);
+            Console.WriteLine("parameters: {0}", parameters.Keys.Aggregate(new StringBuilder(), (sb, s) => sb.AppendFormat("{0}, ", s), sb => sb.ToString()));
 
             return parameters.ContainsKey(param);
         }
@@ -316,9 +336,9 @@ namespace AlternUrl
             switch (keyValueArray.Length)
             {
                 case 1:
-                    return Tuple.Create(keyValueArray[0], String.Empty);
+                    return Tuple.Create(HttpUtility.UrlDecode(keyValueArray[0]), String.Empty);
                 case 2:
-                    return Tuple.Create(keyValueArray[0], keyValueArray[1]);
+                    return Tuple.Create(HttpUtility.UrlDecode(keyValueArray[0]), keyValueArray[1]);
                 default:
                     throw new InvalidOperationException("Query seems to contain strange characters..."); //Yeah I know... :-)
             }
@@ -336,8 +356,8 @@ namespace AlternUrl
 
         private String FormatKeyValue(String key, String value)
         {
-            if (String.IsNullOrWhiteSpace(value)) return key;
-            else return String.Format("{0}={1}", key, value);
+            if (String.IsNullOrWhiteSpace(value)) return HttpUtility.UrlEncode(key);
+            else return String.Format("{0}={1}", HttpUtility.UrlEncode(key), HttpUtility.UrlEncode(value));
         }
     }
 }
