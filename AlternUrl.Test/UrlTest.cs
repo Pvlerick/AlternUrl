@@ -10,6 +10,23 @@ namespace AlternUrl.Test
     [TestFixture]
     public class UrlTest
     {
+        [Test]
+        public void Constructor()
+        {
+            var url = new Url("http://username:password@example.com:8042/over/there/index.dtb?type=animal&name=narwhal#nose");
+
+            Assert.AreEqual("http", url.Scheme);
+            Assert.AreEqual("username", url.UserName);
+            Assert.AreEqual("password", url.Password);
+            Assert.AreEqual("example.com", url.Host);
+            Assert.AreEqual(8042, url.Port);
+            Assert.AreEqual("/over/there/index.dtb", url.Path);
+            Assert.AreEqual("type=animal&name=narwhal", url.Query);
+            Assert.AreEqual("nose", url.Fragment);
+            Assert.AreEqual("index", url.FileName);
+            Assert.AreEqual(".dtb", url.Extension);
+        }
+
         [TestCase("http://www.google.com/", UrlKind.Absolute)]
         [TestCase("http://www.google.com", UrlKind.Absolute)]
         [TestCase("https://www.google.com/", UrlKind.Absolute)]
@@ -148,25 +165,25 @@ namespace AlternUrl.Test
             Assert.AreEqual(expectedHasExtension, url.HasExtension);
         }
 
-        //[TestCase("http://root:mypass@www.google.com/mail/?foo=12&bar=34#anchor", "http", "root", "mypass", "www.google.com", 80, "/mail/", "?foo=12&bar=34", "#anchor")]
-        //[TestCase("http://root:mypass@www.google.com:90/mail/?foo=12&bar=34#anchor", "http", "root", "mypass", "www.google.com", 90, "/mail/", "?foo=12&bar=34", "#anchor")]
-        //[TestCase("https://root:mypass@www.google.com/mail/?foo=12&bar=34#anchor", "https", "root", "mypass", "www.google.com", 443, "/mail/", "?foo=12&bar=34", "#anchor")]
-        //[TestCase("https://root:mypass@www.google.com:444/mail/?foo=12&bar=34#anchor", "https", "root", "mypass", "www.google.com", 444, "/mail/", "?foo=12&bar=34", "#anchor")]
-        //public void UriBuilderMembers_AbsoluteUrl(String urlText, String expectedScheme, String expectedUserName, String expectedPassword, String expectedHost, int expectedPort, String expectedPath, String expectedQuery, String expectedFragment)
-        //{
-        //    var url = new Url(urlText);
+        [TestCase("http://root:mypass@www.google.com/mail/?foo=12&bar=34#anchor", "http", "root", "mypass", "www.google.com", 80, "/mail/", "foo=12&bar=34", "anchor")]
+        [TestCase("http://root:mypass@www.google.com:90/mail/?foo=12&bar=34#anchor", "http", "root", "mypass", "www.google.com", 90, "/mail/", "foo=12&bar=34", "anchor")]
+        [TestCase("https://root:mypass@www.google.com/mail/?foo=12&bar=34#anchor", "https", "root", "mypass", "www.google.com", 443, "/mail/", "foo=12&bar=34", "anchor")]
+        [TestCase("https://root:mypass@www.google.com:444/mail/?foo=12&bar=34#anchor", "https", "root", "mypass", "www.google.com", 444, "/mail/", "foo=12&bar=34", "anchor")]
+        public void UriBuilderMembers_AbsoluteUrl(String urlText, String expectedScheme, String expectedUserName, String expectedPassword, String expectedHost, int expectedPort, String expectedPath, String expectedQuery, String expectedFragment)
+        {
+            var url = new Url(urlText);
 
-        //    Assert.AreEqual(expectedScheme, url.Scheme);
-        //    Assert.AreEqual(expectedUserName, url.UserName);
-        //    Assert.AreEqual(expectedPassword, url.Password);
-        //    Assert.AreEqual(expectedHost, url.Host);
-        //    Assert.AreEqual(expectedPort, url.Port);
-        //    Assert.AreEqual(expectedPath, url.Path);
-        //    Assert.AreEqual(expectedQuery, url.Query);
-        //    Assert.AreEqual(expectedFragment, url.Fragment);
+            Assert.AreEqual(expectedScheme, url.Scheme);
+            Assert.AreEqual(expectedUserName, url.UserName);
+            Assert.AreEqual(expectedPassword, url.Password);
+            Assert.AreEqual(expectedHost, url.Host);
+            Assert.AreEqual(expectedPort, url.Port);
+            Assert.AreEqual(expectedPath, url.Path);
+            Assert.AreEqual(expectedQuery, url.Query);
+            Assert.AreEqual(expectedFragment, url.Fragment);
 
-        //    Assert.AreEqual(urlText, url.ToUri().ToString());
-        //}
+            Assert.AreEqual(urlText, url.ToString());
+        }
 
         [TestCase("/mail/?foo=12&bar=34#anchor", "/mail/", "foo=12&bar=34", "anchor")]
         [TestCase("/mail/index.html?foo=12&bar=34#anchor", "/mail/index.html", "foo=12&bar=34", "anchor")]
@@ -301,5 +318,14 @@ namespace AlternUrl.Test
             Assert.AreEqual(expectedPathAndQuery, url.PathAndQuery);
             Assert.AreEqual(expectedPathAndQueryAndFragment, url.PathAndQueryAndFragment);
         }
+
+        //[TestCase("http://www.google.com", "/mail/index.html", "http://www.google/com/mail/index.html")]
+        //public void Concat(String urlText, String secondUrlText, String expectedUrlString)
+        //{
+        //    var url = new Url(urlText);
+        //    var secondUrl = new Url(secondUrlText);
+
+        //    Assert.AreEqual(expectedUrlString, url.Concat(secondUrl).ToString());
+        //}
     }
 }

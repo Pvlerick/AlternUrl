@@ -53,11 +53,32 @@ namespace AlternUrl
         {
             if (this.Kind == UrlKind.Absolute)
             {
-                return this.Scheme
-                    + ((!String.IsNullOrWhiteSpace(this.UserName) || !String.IsNullOrWhiteSpace(this.Password)) ? this.UserName + ":" + this.Password + "@" : String.Empty)
-                    + this.Host
-                    + (this.Port != 0 ? this.Port.ToString() : String.Empty)
-                    + this + PathAndQueryAndFragment;
+                //Only include username and password if they are present
+                String userNameAndPassword = String.Empty;
+
+                if (!String.IsNullOrWhiteSpace(this.UserName) || !String.IsNullOrWhiteSpace(this.Password))
+                {
+                    userNameAndPassword = this.UserName + ":" + this.Password + "@";
+                }
+                else
+                {
+                    //UserName and password not present, no need to include it in the URL
+                }
+
+                //Only include port is it is not the default one for the scheme
+                String port = String.Empty;
+
+                if ((this.Scheme == "http" && this.Port != 80) ||
+                    (this.Scheme == "https" && this.Port != 443))
+                {
+                    port = ":" + this.Port.ToString();
+                }
+                else
+                {
+                    //Default port for this scheme, no need to include it in the URL
+                }
+
+                return String.Format("{0}://{1}{2}{3}{4}", this.Scheme, userNameAndPassword, this.Host, port, this.PathAndQueryAndFragment);
             }
             else
             {
@@ -306,6 +327,18 @@ namespace AlternUrl
         {
             if (this.HasParameter(param)) return this.SetParameter(param, value);
             else return this.AddParameter(param, value);
+        }
+
+        public Url Concat(Url relativeUrl)
+        {
+            if (relativeUrl.Kind == UrlKind.Absolute) throw new NotSupportedException("Not supported for an absolute url");
+
+            return new Url(this.Kind, this.Scheme, this.UserName, this.Password, this.Host, this.Port, this.Path.TrimEnd('/') + "/" + relativeUrl.Path.TrimStart('/'), this.Query, this.Fragment);
+        }
+
+        public Url Concat(String relativeUrl)
+        {
+            return this.Concat(new Url(relativeUrl));
         }
 
         private Url DoWithParametersDictionary(Action<Dictionary<String, Tuple<String, int>>> action)
