@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Web;
 
 namespace AlternUrl
@@ -24,10 +23,10 @@ namespace AlternUrl
             var urlForBuilder = this.Kind == UrlKind.Absolute ? url : String.Format("http://a.com/{0}", url.TrimStart('/'));
             var uriBuilder = new UriBuilder(urlForBuilder);
 
-            this._scheme = uriBuilder.Scheme;
+            this._scheme = uriBuilder.Scheme.ToLowerInvariant(); //Scheme is case insensitive
             this._userName = uriBuilder.UserName;
             this._password = uriBuilder.Password;
-            this._host = uriBuilder.Host;
+            this._host = uriBuilder.Host.ToLowerInvariant(); //Host is case insensitive
             this._port = uriBuilder.Port;
             this._path = uriBuilder.Path;
             this._query = uriBuilder.Query.TrimStart('?');
@@ -49,6 +48,10 @@ namespace AlternUrl
             this._fragment = fragment;
         }
 
+        /// <summary>
+        /// Returns the normalized string of the URL
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             if (this.Kind == UrlKind.Absolute)
@@ -129,7 +132,6 @@ namespace AlternUrl
         #endregion
 
         #region Password
-        //TODO Use SecureString?
         private readonly String _password;
 
         public String Password
@@ -257,8 +259,31 @@ namespace AlternUrl
             get { return this.PathAndQuery + (this.HasFragment ? "#" + this.Fragment : String.Empty); }
         }
 
+        /// <summary>
+        /// Returns the extension of the file name, if it has one.
+        /// E.g: "/path/index.html" will return ".html"
+        /// </summary>
+        /// <remarks>The dot "." is considered part of the extension</remarks>
         public String Extension { get { return System.IO.Path.GetExtension(this.Path); } }
         public bool HasExtension { get { return this.Extension != String.Empty; } }
+
+        /// <summary>
+        /// Returns a new Url where the extension is replaced by the extension as argument.
+        /// E.g: "/path/index.html" with "aspx" will return "/path/index.aspx"
+        /// </summary>
+        /// <remarks>Leading and trailing dots "." will be trimmed.</remarks>
+        /// <param name="extension"></param>
+        //public Url WithExtension(String extension)
+        //{
+        //    if (!this.HasExtension)
+        //    {
+        //        return this;
+        //    }
+        //    else {
+
+        //    }
+        //}
+
         public String FileName { get { return this.HasExtension ? System.IO.Path.GetFileNameWithoutExtension(this.Path) : String.Empty; } }
         public bool HasFileName { get { return this.FileName != String.Empty; } }
 
