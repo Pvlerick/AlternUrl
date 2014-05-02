@@ -308,6 +308,38 @@ namespace AlternUrl
             }
         }
 
+        public bool IsDomainAnIPAddress
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        public String TopLevelDomain
+        {
+            get
+            {
+                if (this.Kind == UrlKind.Relative) throw new NotSupportedException("Not supported for an relative url");
+                if (this.IsDomainAnIPAddress) throw new NotSupportedException("Not supported for an url who's domain is a numerical IP address");
+                
+                return this.Host.Substring(this.Host.LastIndexOf(".") + 1);
+            }
+        }
+
+        public String SecondLevelDomain
+        {
+            get
+            {
+                if (this.Kind == UrlKind.Relative) throw new NotSupportedException("Not supported for an relative url");
+                if (this.IsDomainAnIPAddress) throw new NotSupportedException("Not supported for an url who's domain is a numerical IP address");
+
+                var hostWithoutTopLevelDomain = this.Host.Substring(0, this.Host.LastIndexOf("."));
+
+                return this.Host.Substring(hostWithoutTopLevelDomain.LastIndexOf(".") + 1);
+            }
+        }
+
         #endregion
 
         public Uri ToUri()
