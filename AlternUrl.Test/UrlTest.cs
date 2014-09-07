@@ -321,12 +321,11 @@ namespace AlternUrl.Test
         //[TestCase("http://root:mypass@www.disney.com/mail/?foo=12&bar=34#anchor", "http://root:mypass@www.disney.com/mail/?foo=12&bar=34#anchor")]
         [TestCase("/mail/?foo=12&bar=34#anchor", "/mail/?foo=12&bar=34#anchor")]
         [TestCase("mail/?foo=12&bar=34#anchor", "/mail/?foo=12&bar=34#anchor")]
-        public void ToString_And_ToUri(String urlText, String expectedUrlText)
+        public void ToString(String urlText, String expectedUrlText)
         {
             var url = new Url(urlText);
 
             Assert.AreEqual(expectedUrlText, url.ToString());
-            Assert.AreEqual(expectedUrlText, url.ToUri().ToString());
         }
 
         [TestCase("http://www.google.com/mail/?foo=12&bar=34#anchor", false)]

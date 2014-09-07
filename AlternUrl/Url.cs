@@ -312,7 +312,7 @@ namespace AlternUrl
         {
             get
             {
-                return false;
+                return Regex.IsMatch(this.Host, @"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}");
             }
         }
 
