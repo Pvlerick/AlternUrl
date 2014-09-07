@@ -11,13 +11,12 @@ namespace AlternUrl.Test
     public class UrlTest
     {
         [Test]
-        public void Constructor()
+        public void Create()
         {
-            var url = new Url("http://username:password@example.com:8042/over/there/index.dtb?type=animal&name=narwhal#nose");
+            var url = Url.Create("http://username:password@example.com:8042/over/there/index.dtb?type=animal&name=narwhal#nose");
 
             Assert.AreEqual("http", url.Scheme);
-            Assert.AreEqual("username", url.UserName);
-            Assert.AreEqual("password", url.Password);
+            Assert.AreEqual("username:password", url.UserInfo);
             Assert.AreEqual("example.com", url.Host);
             Assert.AreEqual(8042, url.Port);
             Assert.AreEqual("/over/there/index.dtb", url.Path);
@@ -43,7 +42,7 @@ namespace AlternUrl.Test
         [TestCase("/http/?foo=12&bar=34#anchor", UrlKind.Relative)]
         public void Kind(String urlText, UrlKind expectedResult)
         {
-            var url = new Url(urlText);
+            var url = Url.Create(urlText);
 
             Assert.AreEqual(expectedResult, url.Kind);
         }
@@ -157,7 +156,7 @@ namespace AlternUrl.Test
         [TestCase("/mail/?foo=12&bar=34#anchor", "", false, "", false)]
         public void FileName_HasFileName_And_Extension_HasExtension(String urlText, String expectedFileName, bool expectedHasFileName, String expectedExtension, bool expectedHasExtension)
         {
-            var url = new Url(urlText);
+            var url = Url.Create(urlText);
 
             Assert.AreEqual(expectedFileName, url.FileName);
             Assert.AreEqual(expectedHasFileName, url.HasFileName);
@@ -168,31 +167,23 @@ namespace AlternUrl.Test
         [Test, TestCaseSource("TestData")]
         public void Scheme(UrlTestData urlData)
         {
-            var url = new Url(urlData.Url);
+            var url = Url.Create(urlData.Url);
 
             Assert.AreEqual(urlData.Scheme, url.Scheme);
         }
 
         [Test, TestCaseSource("TestData")]
-        public void UserName(UrlTestData urlData)
+        public void UserInfo(UrlTestData urlData)
         {
-            var url = new Url(urlData.Url);
+            var url = Url.Create(urlData.Url);
 
-            Assert.AreEqual(urlData.UserName, url.UserName);
-        }
-
-        [Test, TestCaseSource("TestData")]
-        public void Password(UrlTestData urlData)
-        {
-            var url = new Url(urlData.Url);
-
-            Assert.AreEqual(urlData.Password, url.Password);
+            Assert.AreEqual(urlData.UserInfo, url.UserInfo);
         }
 
         [Test, TestCaseSource("TestData")]
         public void Host(UrlTestData urlData)
         {
-            var url = new Url(urlData.Url);
+            var url = Url.Create(urlData.Url);
 
             Assert.AreEqual(urlData.Host, url.Host);
         }
@@ -200,7 +191,7 @@ namespace AlternUrl.Test
         [Test, TestCaseSource("TestData")]
         public void Port(UrlTestData urlData)
         {
-            var url = new Url(urlData.Url);
+            var url = Url.Create(urlData.Url);
 
             Assert.AreEqual(urlData.Port, url.Port);
         }
@@ -208,7 +199,7 @@ namespace AlternUrl.Test
         [Test, TestCaseSource("TestData")]
         public void Path(UrlTestData urlData)
         {
-            var url = new Url(urlData.Url);
+            var url = Url.Create(urlData.Url);
 
             Assert.AreEqual(urlData.Path, url.Path);
         }
@@ -216,7 +207,7 @@ namespace AlternUrl.Test
         [Test, TestCaseSource("TestData")]
         public void Query(UrlTestData urlData)
         {
-            var url = new Url(urlData.Url);
+            var url = Url.Create(urlData.Url);
 
             Assert.AreEqual(urlData.Query, url.Query);
         }
@@ -224,7 +215,7 @@ namespace AlternUrl.Test
         [Test, TestCaseSource("TestData")]
         public void Fragment(UrlTestData urlData)
         {
-            var url = new Url(urlData.Url);
+            var url = Url.Create(urlData.Url);
 
             Assert.AreEqual(urlData.Fragment, url.Fragment);
         }
@@ -239,7 +230,7 @@ namespace AlternUrl.Test
         [TestCase("http://thisisasillyexample.net:194/", "net")]
         public void TopLevelDomain(String urlText, String expectedTopLevelDomain)
         {
-            var url = new Url(urlText);
+            var url = Url.Create(urlText);
 
             Assert.AreEqual(expectedTopLevelDomain, url.TopLevelDomain);
         }
@@ -255,7 +246,7 @@ namespace AlternUrl.Test
         [TestCase("http://this.is.even.a.sillier.example.net:194/", "example.net")]
         public void SecondLevelDomain(String urlText, String expectedSecondLevelDomain)
         {
-            var url = new Url(urlText);
+            var url = Url.Create(urlText);
 
             Assert.AreEqual(expectedSecondLevelDomain, url.SecondLevelDomain);
         }
@@ -265,7 +256,7 @@ namespace AlternUrl.Test
         //[TestCase("http://192.168.1.1/", true)]
         public void IsDomainIPAddress(String urlText, bool expectedIsIPAddress)
         {
-            var url = new Url(urlText);
+            var url = Url.Create(urlText);
 
             Assert.AreEqual(expectedIsIPAddress, url.IsDomainAnIPAddress);
         }
@@ -273,7 +264,7 @@ namespace AlternUrl.Test
         [TestCase("http://192.168.1.1/")]
         public void TopLevelDomain_And_SecondLevelDomain_ThrowWithIPDomain(String urlText)
         {
-            var url = new Url(urlText);
+            var url = Url.Create(urlText);
 
             Assert.Throws<NotSupportedException>(() => { var x = url.TopLevelDomain; });
             Assert.Throws<NotSupportedException>(() => { var x = url.SecondLevelDomain; });
@@ -282,7 +273,7 @@ namespace AlternUrl.Test
         [Test, TestCaseSource("TestData")]
         public void Normalized(UrlTestData urlData)
         {
-            var url = new Url(urlData.Url);
+            var url = Url.Create(urlData.Url);
 
             Assert.AreEqual(urlData.Normalized, url.ToString());
         }
@@ -294,7 +285,7 @@ namespace AlternUrl.Test
         [TestCase("http://www.example.com:80/bar.html", "http://www.example.com/bar.html")]
         public void Normalized(String urlText, String expectedUrlText)
         {
-            var url = new Url(urlText);
+            var url = Url.Create(urlText);
 
             Assert.AreEqual(expectedUrlText, url.ToString());
         }
@@ -303,11 +294,10 @@ namespace AlternUrl.Test
         [TestCase("/mail/index.html?foo=12&bar=34#anchor", "/mail/index.html", "foo=12&bar=34", "anchor")]
         public void UriBuilderMembers_RelativeUrl(String urlText, String expectedPath, String expectedQuery, String expectedFragment)
         {
-            var url = new Url(urlText);
+            var url = Url.Create(urlText);
 
             Assert.Throws<NotSupportedException>(() => { var x = url.Scheme; });
-            Assert.Throws<NotSupportedException>(() => { var x = url.UserName; });
-            Assert.Throws<NotSupportedException>(() => { var x = url.Password; });
+            Assert.Throws<NotSupportedException>(() => { var x = url.UserInfo; });
             Assert.Throws<NotSupportedException>(() => { var x = url.Host; });
             Assert.Throws<NotSupportedException>(() => { var x = url.Port; });
             Assert.AreEqual(expectedPath, url.Path);
@@ -323,7 +313,7 @@ namespace AlternUrl.Test
         [TestCase("mail/?foo=12&bar=34#anchor", "/mail/?foo=12&bar=34#anchor")]
         public void ToString(String urlText, String expectedUrlText)
         {
-            var url = new Url(urlText);
+            var url = Url.Create(urlText);
 
             Assert.AreEqual(expectedUrlText, url.ToString());
         }
@@ -334,7 +324,7 @@ namespace AlternUrl.Test
         [TestCase("HTTPS://www.google.com/mail/?foo=12&bar=34#anchor", true)]
         public void IsHttps_AbsoluteUrl(String urlText, bool expectedResult)
         {
-            var url = new Url(urlText);
+            var url = Url.Create(urlText);
 
             Assert.AreEqual(expectedResult, url.IsHttps);
         }
@@ -343,7 +333,7 @@ namespace AlternUrl.Test
         [TestCase("mail/?foo=12&bar=34#anchor", false)]
         public void IsHttps_RelativeUrl(String urlText, bool expectedResult)
         {
-            var url = new Url(urlText);
+            var url = Url.Create(urlText);
 
             Assert.Throws<NotSupportedException>(() => { var x = url.IsHttps; });
         }
@@ -374,7 +364,7 @@ namespace AlternUrl.Test
         [TestCase("https://www.google.com/mail/hello.html?this+is+a+test=how+did+it+go#anchor", "this is a test", true)]
         public void HasParameter(String urlText, String parameter, bool expectedResult)
         {
-            var url = new Url(urlText);
+            var url = Url.Create(urlText);
 
             Assert.AreEqual(expectedResult, url.HasParameter(parameter));
         }
@@ -394,7 +384,7 @@ namespace AlternUrl.Test
         [TestCase("/mail/?foo", "bar bar", "4:2", "foo&bar+bar=4%3a2", "/mail/?foo&bar+bar=4%3a2", "/mail/?foo&bar+bar=4%3a2")]
         public void AddParameter(String urlText, String parameter, String argument, String expectedQuery, String expectedPathAndQuery, String expectedPathAndQueryAndFragment)
         {
-            var url = new Url(urlText).AddParameter(parameter, argument);
+            var url = Url.Create(urlText).AddParameter(parameter, argument);
 
             Assert.AreEqual(expectedQuery, url.Query);
             Assert.AreEqual(expectedPathAndQuery, url.PathAndQuery);
@@ -425,7 +415,7 @@ namespace AlternUrl.Test
         [TestCase("/mail/?foo foo=4:2&bar bar#anchor", "foo foo", "bar+bar", "/mail/?bar+bar", "/mail/?bar+bar#anchor")]
         public void RemoveParameter(String urlText, String parameter, String expectedQuery, String expectedPathAndQuery, String expectedPathAndQueryAndFragment)
         {
-            var url = new Url(urlText).RemoveParameter(parameter);
+            var url = Url.Create(urlText).RemoveParameter(parameter);
 
             Assert.AreEqual(expectedQuery, url.Query);
             Assert.AreEqual(expectedPathAndQuery, url.PathAndQuery);
@@ -435,7 +425,7 @@ namespace AlternUrl.Test
         //[TestCase("http://www.google.com", "/mail/index.html", "http://www.google/com/mail/index.html")]
         //public void Concat(String urlText, String secondUrlText, String expectedUrlString)
         //{
-        //    var url = new Url(urlText);
+        //    var url = Url.Create(urlText);
         //    var secondUrl = new Url(secondUrlText);
 
         //    Assert.AreEqual(expectedUrlString, url.Concat(secondUrl).ToString());
@@ -447,21 +437,19 @@ namespace AlternUrl.Test
             public String Url { get; set; }
             public String Normalized { get; set; }
             public String Scheme { get; set; }
-            public String UserName { get; set; }
-            public String Password { get; set; }
+            public String UserInfo { get; set; }
             public String Host { get; set; }
             public int Port { get; set; }
             public String Path { get; set; }
             public String Query { get; set; }
             public String Fragment { get; set; }
 
-            public UrlTestData(String url, String urlToString, String scheme, String userName, String password, String host, int port, String path, String query, String fragment)
+            public UrlTestData(String url, String urlToString, String scheme, String userInfo, String host, int port, String path, String query, String fragment)
             {
                 this.Url = url;
                 this.Normalized = urlToString;
                 this.Scheme = scheme;
-                this.UserName = userName;
-                this.Password = password;
+                this.UserInfo = userInfo;
                 this.Host = host;
                 this.Port = port;
                 this.Path = path;
@@ -472,71 +460,71 @@ namespace AlternUrl.Test
 
         protected static UrlTestData[] TestData =
         {
-            new  UrlTestData("http://www.google.com","http://www.google.com/","http","","","www.google.com",80,"/","", ""),
-            new  UrlTestData("HTTP://WWW.GOOGLE.COM","http://www.google.com/","http","","","www.google.com",80,"/","", ""),
-            new  UrlTestData("http://www.google.com/","http://www.google.com/","http","","","www.google.com",80,"/","", ""),
-            new  UrlTestData("http://www.google.com/mail","http://www.google.com/mail","http","","","www.google.com",80,"/mail","", ""),
-            new  UrlTestData("http://WWW.GOOGLE.COM/mail","http://www.google.com/mail","http","","","www.google.com",80,"/mail","", ""),
-            new  UrlTestData("http://WWW.GOOGLE.COM/MAIL","http://www.google.com/MAIL","http","","","www.google.com",80,"/MAIL","", ""),
-            new  UrlTestData("http://www.google.com/mail/","http://www.google.com/mail/","http","","","www.google.com",80,"/mail/","", ""),
-            new  UrlTestData("http://www.google.com/hello.html","http://www.google.com/hello.html","http","","","www.google.com",80,"/hello.html","", ""),
-            new  UrlTestData("http://www.google.com/mail/hello.htm","http://www.google.com/mail/hello.htm","http","","","www.google.com",80,"/mail/hello.htm","", ""),
-            new  UrlTestData("http://www.google.com/mail/hello.html","http://www.google.com/mail/hello.html","http","","","www.google.com",80,"/mail/hello.html","", ""),
-            new  UrlTestData("http://www.google.com/mail/hello.html#","http://www.google.com/mail/hello.html","http","","","www.google.com",80,"/mail/hello.html","", ""),
-            new  UrlTestData("http://www.google.com/mail/hello.html#anchor","http://www.google.com/mail/hello.html#anchor","http","","","www.google.com",80,"/mail/hello.html","", "anchor"),
-            new  UrlTestData("http://www.google.com/mail/hello.html?","http://www.google.com/mail/hello.html","http","","","www.google.com",80,"/mail/hello.html","", ""),
-            new  UrlTestData("http://www.google.com/mail/hello.html?#","http://www.google.com/mail/hello.html","http","","","www.google.com",80,"/mail/hello.html","", ""),
-            new  UrlTestData("http://www.google.com/mail/hello.html?foo","http://www.google.com/mail/hello.html?foo","http","","","www.google.com",80,"/mail/hello.html","foo", ""),
-            new  UrlTestData("http://www.google.com/mail/hello.html?foo=12","http://www.google.com/mail/hello.html?foo=12","http","","","www.google.com",80,"/mail/hello.html","foo=12", ""),
-            new  UrlTestData("http://www.google.com/mail/hello.html?foo=12&bar","http://www.google.com/mail/hello.html?foo=12&bar","http","","","www.google.com",80,"/mail/hello.html","foo=12&bar", ""),
-            new  UrlTestData("http://www.google.com/mail/hello.html?foo=12&bar=34","http://www.google.com/mail/hello.html?foo=12&bar=34","http","","","www.google.com",80,"/mail/hello.html","foo=12&bar=34", ""),
-            new  UrlTestData("http://www.google.com/mail/hello.html?foo","http://www.google.com/mail/hello.html?foo","http","","","www.google.com",80,"/mail/hello.html","foo", ""),
-            new  UrlTestData("http://www.google.com/mail/hello.html?foo#anchor","http://www.google.com/mail/hello.html?foo#anchor","http","","","www.google.com",80,"/mail/hello.html","foo", "anchor"),
-            new  UrlTestData("http://www.google.com/mail/hello.html?foo=12","http://www.google.com/mail/hello.html?foo=12","http","","","www.google.com",80,"/mail/hello.html","foo=12", ""),
-            new  UrlTestData("http://www.google.com/mail/hello.html?foo=12#anchor","http://www.google.com/mail/hello.html?foo=12#anchor","http","","","www.google.com",80,"/mail/hello.html","foo=12", "anchor"),
-            new  UrlTestData("http://www.google.com/mail/hello.html?foo=12&bar","http://www.google.com/mail/hello.html?foo=12&bar","http","","","www.google.com",80,"/mail/hello.html","foo=12&bar", ""),
-            new  UrlTestData("http://www.google.com/mail/hello.html?foo=12&bar=34","http://www.google.com/mail/hello.html?foo=12&bar=34","http","","","www.google.com",80,"/mail/hello.html","foo=12&bar=34", ""),
-            new  UrlTestData("http://www.google.com/mail/hello.html?foo=12&bar=34#anchor","http://www.google.com/mail/hello.html?foo=12&bar=34#anchor","http","","","www.google.com",80,"/mail/hello.html","foo=12&bar=34", "anchor"),
-            new  UrlTestData("http://www.google.com/hello","http://www.google.com/hello","http","","","www.google.com",80,"/hello","", ""),
-            new  UrlTestData("http://www.google.com/mail#","http://www.google.com/mail","http","","","www.google.com",80,"/mail","", ""),
-            new  UrlTestData("http://www.google.com/mail#anchor","http://www.google.com/mail#anchor","http","","","www.google.com",80,"/mail","", "anchor"),
-            new  UrlTestData("http://www.google.com/mail?","http://www.google.com/mail","http","","","www.google.com",80,"/mail","", ""),
-            new  UrlTestData("http://www.google.com/mail?#","http://www.google.com/mail","http","","","www.google.com",80,"/mail","", ""),
-            new  UrlTestData("http://www.google.com/mail?foo","http://www.google.com/mail?foo","http","","","www.google.com",80,"/mail","foo", ""),
-            new  UrlTestData("http://www.google.com/mail?foo=12","http://www.google.com/mail?foo=12","http","","","www.google.com",80,"/mail","foo=12", ""),
-            new  UrlTestData("http://www.google.com/mail?foo=12&bar","http://www.google.com/mail?foo=12&bar","http","","","www.google.com",80,"/mail","foo=12&bar", ""),
-            new  UrlTestData("http://www.google.com/mail?foo=12&bar=34","http://www.google.com/mail?foo=12&bar=34","http","","","www.google.com",80,"/mail","foo=12&bar=34", ""),
-            new  UrlTestData("http://www.google.com/mail?foo","http://www.google.com/mail?foo","http","","","www.google.com",80,"/mail","foo", ""),
-            new  UrlTestData("http://www.google.com/mail?foo#anchor","http://www.google.com/mail?foo#anchor","http","","","www.google.com",80,"/mail","foo", "anchor"),
-            new  UrlTestData("http://www.google.com/mail?foo=12","http://www.google.com/mail?foo=12","http","","","www.google.com",80,"/mail","foo=12", ""),
-            new  UrlTestData("http://www.google.com/mail?foo=12#anchor","http://www.google.com/mail?foo=12#anchor","http","","","www.google.com",80,"/mail","foo=12", "anchor"),
-            new  UrlTestData("http://www.google.com/mail?foo=12&bar","http://www.google.com/mail?foo=12&bar","http","","","www.google.com",80,"/mail","foo=12&bar", ""),
-            new  UrlTestData("http://www.google.com/mail?foo=12&bar=34","http://www.google.com/mail?foo=12&bar=34","http","","","www.google.com",80,"/mail","foo=12&bar=34", ""),
-            new  UrlTestData("http://www.google.com/mail?foo=12&bar=34#anchor","http://www.google.com/mail?foo=12&bar=34#anchor","http","","","www.google.com",80,"/mail","foo=12&bar=34", "anchor"),
-            new  UrlTestData("http://www.google.com/mail/","http://www.google.com/mail/","http","","","www.google.com",80,"/mail/","", ""),
-            new  UrlTestData("http://www.google.com/mail/#","http://www.google.com/mail/","http","","","www.google.com",80,"/mail/","", ""),
-            new  UrlTestData("http://www.google.com/mail/#anchor","http://www.google.com/mail/#anchor","http","","","www.google.com",80,"/mail/","", "anchor"),
-            new  UrlTestData("http://www.google.com/mail/?","http://www.google.com/mail/","http","","","www.google.com",80,"/mail/","", ""),
-            new  UrlTestData("http://www.google.com/mail/?#","http://www.google.com/mail/","http","","","www.google.com",80,"/mail/","", ""),
-            new  UrlTestData("http://www.google.com/mail/?foo","http://www.google.com/mail/?foo","http","","","www.google.com",80,"/mail/","foo", ""),
-            new  UrlTestData("http://www.google.com/mail/?foo=12","http://www.google.com/mail/?foo=12","http","","","www.google.com",80,"/mail/","foo=12", ""),
-            new  UrlTestData("http://www.google.com/mail/?foo=12&bar","http://www.google.com/mail/?foo=12&bar","http","","","www.google.com",80,"/mail/","foo=12&bar", ""),
-            new  UrlTestData("http://www.google.com/mail/?foo=12&bar=34","http://www.google.com/mail/?foo=12&bar=34","http","","","www.google.com",80,"/mail/","foo=12&bar=34", ""),
-            new  UrlTestData("http://www.google.com/mail/?foo","http://www.google.com/mail/?foo","http","","","www.google.com",80,"/mail/","foo", ""),
-            new  UrlTestData("http://www.google.com/mail/?foo#anchor","http://www.google.com/mail/?foo#anchor","http","","","www.google.com",80,"/mail/","foo", "anchor"),
-            new  UrlTestData("http://www.google.com/mail/?foo=12","http://www.google.com/mail/?foo=12","http","","","www.google.com",80,"/mail/","foo=12", ""),
-            new  UrlTestData("http://www.google.com/mail/?foo=12#anchor","http://www.google.com/mail/?foo=12#anchor","http","","","www.google.com",80,"/mail/","foo=12", "anchor"),
-            new  UrlTestData("http://www.google.com/mail/?foo=12&bar","http://www.google.com/mail/?foo=12&bar","http","","","www.google.com",80,"/mail/","foo=12&bar", ""),
-            new  UrlTestData("http://www.google.com/mail/?foo=12&bar=34","http://www.google.com/mail/?foo=12&bar=34","http","","","www.google.com",80,"/mail/","foo=12&bar=34", ""),
-            new  UrlTestData("http://www.google.com/mail/?foo=12&bar=34#anchor","http://www.google.com/mail/?foo=12&bar=34#anchor","http","","","www.google.com",80,"/mail/","foo=12&bar=34", "anchor"),
-            new  UrlTestData("http://root:mypass@www.google.com/mail/?foo=12&bar=34#anchor","http://root:mypass@www.google.com/mail/?foo=12&bar=34#anchor","http","root","mypass","www.google.com",80,"/mail/","foo=12&bar=34", "anchor"),
-            new  UrlTestData("http://root:mypass@www.google.com:90/mail/?foo=12&bar=34#anchor","http://root:mypass@www.google.com:90/mail/?foo=12&bar=34#anchor","http","root","mypass","www.google.com",90,"/mail/","foo=12&bar=34", "anchor"),
-            new  UrlTestData("https://root:mypass@www.google.com/mail/?foo=12&bar=34#anchor","https://root:mypass@www.google.com/mail/?foo=12&bar=34#anchor","https","root","mypass","www.google.com",443,"/mail/","foo=12&bar=34", "anchor"),
-            new  UrlTestData("https://root:mypass@www.google.com:444/mail/?foo=12&bar=34#anchor","https://root:mypass@www.google.com:444/mail/?foo=12&bar=34#anchor","https","root","mypass","www.google.com",444,"/mail/","foo=12&bar=34", "anchor"),
-            new  UrlTestData("http://root:mypass@www.google.com/mail/?foo=12&bar=34#anchor","http://root:mypass@www.google.com/mail/?foo=12&bar=34#anchor","http","root","mypass","www.google.com",80,"/mail/","foo=12&bar=34", "anchor"),
-            new  UrlTestData("http://www.google.com/mail/?foo=12&bar=34#anchor","http://www.google.com/mail/?foo=12&bar=34#anchor","http","","","www.google.com",80,"/mail/","foo=12&bar=34", "anchor"),
-            new  UrlTestData("https://root:mypass@www.google.com/mail/?foo=12&bar=34#anchor","https://root:mypass@www.google.com/mail/?foo=12&bar=34#anchor","https","root","mypass","www.google.com",443,"/mail/","foo=12&bar=34", "anchor"),
-            new  UrlTestData("https://www.google.com/mail/?foo=12&bar=34#anchor","https://www.google.com/mail/?foo=12&bar=34#anchor","https","","","www.google.com",443,"/mail/","foo=12&bar=34", "anchor")
+            new  UrlTestData("http://www.google.com","http://www.google.com/","http","","www.google.com",80,"/","", ""),
+            new  UrlTestData("HTTP://WWW.GOOGLE.COM","http://www.google.com/","http","","www.google.com",80,"/","", ""),
+            new  UrlTestData("http://www.google.com/","http://www.google.com/","http","","www.google.com",80,"/","", ""),
+            new  UrlTestData("http://www.google.com/mail","http://www.google.com/mail","http","","www.google.com",80,"/mail","", ""),
+            new  UrlTestData("http://WWW.GOOGLE.COM/mail","http://www.google.com/mail","http","","www.google.com",80,"/mail","", ""),
+            new  UrlTestData("http://WWW.GOOGLE.COM/MAIL","http://www.google.com/MAIL","http","","www.google.com",80,"/MAIL","", ""),
+            new  UrlTestData("http://www.google.com/mail/","http://www.google.com/mail/","http","","www.google.com",80,"/mail/","", ""),
+            new  UrlTestData("http://www.google.com/hello.html","http://www.google.com/hello.html","http","","www.google.com",80,"/hello.html","", ""),
+            new  UrlTestData("http://www.google.com/mail/hello.htm","http://www.google.com/mail/hello.htm","http","","www.google.com",80,"/mail/hello.htm","", ""),
+            new  UrlTestData("http://www.google.com/mail/hello.html","http://www.google.com/mail/hello.html","http","","www.google.com",80,"/mail/hello.html","", ""),
+            new  UrlTestData("http://www.google.com/mail/hello.html#","http://www.google.com/mail/hello.html","http","","www.google.com",80,"/mail/hello.html","", ""),
+            new  UrlTestData("http://www.google.com/mail/hello.html#anchor","http://www.google.com/mail/hello.html#anchor","http","","www.google.com",80,"/mail/hello.html","", "anchor"),
+            new  UrlTestData("http://www.google.com/mail/hello.html?","http://www.google.com/mail/hello.html","http","","www.google.com",80,"/mail/hello.html","", ""),
+            new  UrlTestData("http://www.google.com/mail/hello.html?#","http://www.google.com/mail/hello.html","http","","www.google.com",80,"/mail/hello.html","", ""),
+            new  UrlTestData("http://www.google.com/mail/hello.html?foo","http://www.google.com/mail/hello.html?foo","http","","www.google.com",80,"/mail/hello.html","foo", ""),
+            new  UrlTestData("http://www.google.com/mail/hello.html?foo=12","http://www.google.com/mail/hello.html?foo=12","http","","www.google.com",80,"/mail/hello.html","foo=12", ""),
+            new  UrlTestData("http://www.google.com/mail/hello.html?foo=12&bar","http://www.google.com/mail/hello.html?foo=12&bar","http","","www.google.com",80,"/mail/hello.html","foo=12&bar", ""),
+            new  UrlTestData("http://www.google.com/mail/hello.html?foo=12&bar=34","http://www.google.com/mail/hello.html?foo=12&bar=34","http","","www.google.com",80,"/mail/hello.html","foo=12&bar=34", ""),
+            new  UrlTestData("http://www.google.com/mail/hello.html?foo","http://www.google.com/mail/hello.html?foo","http","","www.google.com",80,"/mail/hello.html","foo", ""),
+            new  UrlTestData("http://www.google.com/mail/hello.html?foo#anchor","http://www.google.com/mail/hello.html?foo#anchor","http","","www.google.com",80,"/mail/hello.html","foo", "anchor"),
+            new  UrlTestData("http://www.google.com/mail/hello.html?foo=12","http://www.google.com/mail/hello.html?foo=12","http","","www.google.com",80,"/mail/hello.html","foo=12", ""),
+            new  UrlTestData("http://www.google.com/mail/hello.html?foo=12#anchor","http://www.google.com/mail/hello.html?foo=12#anchor","http","","www.google.com",80,"/mail/hello.html","foo=12", "anchor"),
+            new  UrlTestData("http://www.google.com/mail/hello.html?foo=12&bar","http://www.google.com/mail/hello.html?foo=12&bar","http","","www.google.com",80,"/mail/hello.html","foo=12&bar", ""),
+            new  UrlTestData("http://www.google.com/mail/hello.html?foo=12&bar=34","http://www.google.com/mail/hello.html?foo=12&bar=34","http","","www.google.com",80,"/mail/hello.html","foo=12&bar=34", ""),
+            new  UrlTestData("http://www.google.com/mail/hello.html?foo=12&bar=34#anchor","http://www.google.com/mail/hello.html?foo=12&bar=34#anchor","http","","www.google.com",80,"/mail/hello.html","foo=12&bar=34", "anchor"),
+            new  UrlTestData("http://www.google.com/hello","http://www.google.com/hello","http","","www.google.com",80,"/hello","", ""),
+            new  UrlTestData("http://www.google.com/mail#","http://www.google.com/mail","http","","www.google.com",80,"/mail","", ""),
+            new  UrlTestData("http://www.google.com/mail#anchor","http://www.google.com/mail#anchor","http","","www.google.com",80,"/mail","", "anchor"),
+            new  UrlTestData("http://www.google.com/mail?","http://www.google.com/mail","http","","www.google.com",80,"/mail","", ""),
+            new  UrlTestData("http://www.google.com/mail?#","http://www.google.com/mail","http","","www.google.com",80,"/mail","", ""),
+            new  UrlTestData("http://www.google.com/mail?foo","http://www.google.com/mail?foo","http","","www.google.com",80,"/mail","foo", ""),
+            new  UrlTestData("http://www.google.com/mail?foo=12","http://www.google.com/mail?foo=12","http","","www.google.com",80,"/mail","foo=12", ""),
+            new  UrlTestData("http://www.google.com/mail?foo=12&bar","http://www.google.com/mail?foo=12&bar","http","","www.google.com",80,"/mail","foo=12&bar", ""),
+            new  UrlTestData("http://www.google.com/mail?foo=12&bar=34","http://www.google.com/mail?foo=12&bar=34","http","","www.google.com",80,"/mail","foo=12&bar=34", ""),
+            new  UrlTestData("http://www.google.com/mail?foo","http://www.google.com/mail?foo","http","","www.google.com",80,"/mail","foo", ""),
+            new  UrlTestData("http://www.google.com/mail?foo#anchor","http://www.google.com/mail?foo#anchor","http","","www.google.com",80,"/mail","foo", "anchor"),
+            new  UrlTestData("http://www.google.com/mail?foo=12","http://www.google.com/mail?foo=12","http","","www.google.com",80,"/mail","foo=12", ""),
+            new  UrlTestData("http://www.google.com/mail?foo=12#anchor","http://www.google.com/mail?foo=12#anchor","http","","www.google.com",80,"/mail","foo=12", "anchor"),
+            new  UrlTestData("http://www.google.com/mail?foo=12&bar","http://www.google.com/mail?foo=12&bar","http","","www.google.com",80,"/mail","foo=12&bar", ""),
+            new  UrlTestData("http://www.google.com/mail?foo=12&bar=34","http://www.google.com/mail?foo=12&bar=34","http","","www.google.com",80,"/mail","foo=12&bar=34", ""),
+            new  UrlTestData("http://www.google.com/mail?foo=12&bar=34#anchor","http://www.google.com/mail?foo=12&bar=34#anchor","http","","www.google.com",80,"/mail","foo=12&bar=34", "anchor"),
+            new  UrlTestData("http://www.google.com/mail/","http://www.google.com/mail/","http","","www.google.com",80,"/mail/","", ""),
+            new  UrlTestData("http://www.google.com/mail/#","http://www.google.com/mail/","http","","www.google.com",80,"/mail/","", ""),
+            new  UrlTestData("http://www.google.com/mail/#anchor","http://www.google.com/mail/#anchor","http","","www.google.com",80,"/mail/","", "anchor"),
+            new  UrlTestData("http://www.google.com/mail/?","http://www.google.com/mail/","http","","www.google.com",80,"/mail/","", ""),
+            new  UrlTestData("http://www.google.com/mail/?#","http://www.google.com/mail/","http","","www.google.com",80,"/mail/","", ""),
+            new  UrlTestData("http://www.google.com/mail/?foo","http://www.google.com/mail/?foo","http","","www.google.com",80,"/mail/","foo", ""),
+            new  UrlTestData("http://www.google.com/mail/?foo=12","http://www.google.com/mail/?foo=12","http","","www.google.com",80,"/mail/","foo=12", ""),
+            new  UrlTestData("http://www.google.com/mail/?foo=12&bar","http://www.google.com/mail/?foo=12&bar","http","","www.google.com",80,"/mail/","foo=12&bar", ""),
+            new  UrlTestData("http://www.google.com/mail/?foo=12&bar=34","http://www.google.com/mail/?foo=12&bar=34","http","","www.google.com",80,"/mail/","foo=12&bar=34", ""),
+            new  UrlTestData("http://www.google.com/mail/?foo","http://www.google.com/mail/?foo","http","","www.google.com",80,"/mail/","foo", ""),
+            new  UrlTestData("http://www.google.com/mail/?foo#anchor","http://www.google.com/mail/?foo#anchor","http","","www.google.com",80,"/mail/","foo", "anchor"),
+            new  UrlTestData("http://www.google.com/mail/?foo=12","http://www.google.com/mail/?foo=12","http","","www.google.com",80,"/mail/","foo=12", ""),
+            new  UrlTestData("http://www.google.com/mail/?foo=12#anchor","http://www.google.com/mail/?foo=12#anchor","http","","www.google.com",80,"/mail/","foo=12", "anchor"),
+            new  UrlTestData("http://www.google.com/mail/?foo=12&bar","http://www.google.com/mail/?foo=12&bar","http","","www.google.com",80,"/mail/","foo=12&bar", ""),
+            new  UrlTestData("http://www.google.com/mail/?foo=12&bar=34","http://www.google.com/mail/?foo=12&bar=34","http","","www.google.com",80,"/mail/","foo=12&bar=34", ""),
+            new  UrlTestData("http://www.google.com/mail/?foo=12&bar=34#anchor","http://www.google.com/mail/?foo=12&bar=34#anchor","http","","www.google.com",80,"/mail/","foo=12&bar=34", "anchor"),
+            new  UrlTestData("http://root:mypass@www.google.com/mail/?foo=12&bar=34#anchor","http://root:mypass@www.google.com/mail/?foo=12&bar=34#anchor","http","root:mypass","www.google.com",80,"/mail/","foo=12&bar=34", "anchor"),
+            new  UrlTestData("http://root:mypass@www.google.com:90/mail/?foo=12&bar=34#anchor","http://root:mypass@www.google.com:90/mail/?foo=12&bar=34#anchor","http","root:mypass","www.google.com",90,"/mail/","foo=12&bar=34", "anchor"),
+            new  UrlTestData("https://root:mypass@www.google.com/mail/?foo=12&bar=34#anchor","https://root:mypass@www.google.com/mail/?foo=12&bar=34#anchor","https","root:mypass","www.google.com",443,"/mail/","foo=12&bar=34", "anchor"),
+            new  UrlTestData("https://root:mypass@www.google.com:444/mail/?foo=12&bar=34#anchor","https://root:mypass@www.google.com:444/mail/?foo=12&bar=34#anchor","https","root:mypass","www.google.com",444,"/mail/","foo=12&bar=34", "anchor"),
+            new  UrlTestData("http://root:mypass@www.google.com/mail/?foo=12&bar=34#anchor","http://root:mypass@www.google.com/mail/?foo=12&bar=34#anchor","http","root:mypass","www.google.com",80,"/mail/","foo=12&bar=34", "anchor"),
+            new  UrlTestData("http://www.google.com/mail/?foo=12&bar=34#anchor","http://www.google.com/mail/?foo=12&bar=34#anchor","http","","www.google.com",80,"/mail/","foo=12&bar=34", "anchor"),
+            new  UrlTestData("https://root:mypass@www.google.com/mail/?foo=12&bar=34#anchor","https://root:mypass@www.google.com/mail/?foo=12&bar=34#anchor","https","root:mypass","www.google.com",443,"/mail/","foo=12&bar=34", "anchor"),
+            new  UrlTestData("https://www.google.com/mail/?foo=12&bar=34#anchor","https://www.google.com/mail/?foo=12&bar=34#anchor","https","","www.google.com",443,"/mail/","foo=12&bar=34", "anchor")
         };
         #endregion
     }

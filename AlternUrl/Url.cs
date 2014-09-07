@@ -13,39 +13,78 @@ namespace AlternUrl
     {
         int lastParameterIndex = 0;
 
-        public Url(String url, bool encoded = true)
-        {
-            if (!encoded) url = HttpUtility.UrlEncode(url);
-
-            this.Kind = Regex.IsMatch(url, "^https*://", RegexOptions.IgnoreCase) ? UrlKind.Absolute : UrlKind.Relative;
-
-            //Use UriBuilder class for the heavy lifting (parsing, etc...) using a fake domain if the given url is relative
-            var urlForBuilder = this.Kind == UrlKind.Absolute ? url : String.Format("http://a.com/{0}", url.TrimStart('/'));
-            var uriBuilder = new UriBuilder(urlForBuilder);
-
-            this._scheme = uriBuilder.Scheme.ToLowerInvariant(); //Scheme is case insensitive
-            this._userName = uriBuilder.UserName;
-            this._password = uriBuilder.Password;
-            this._host = uriBuilder.Host.ToLowerInvariant(); //Host is case insensitive
-            this._port = uriBuilder.Port;
-            this._path = uriBuilder.Path;
-            this._query = uriBuilder.Query.TrimStart('?');
-            this._fragment = uriBuilder.Fragment.TrimStart('#');
-        }
-
-        public Url(Uri uri) : this(uri.ToString()) { }
-
-        private Url(UrlKind kind, String scheme, String userName, String password, String host, int port, String path, String query, String fragment)
+        private Url(UrlKind kind, String scheme, String userInfo, String host, int port, String path, String query, String fragment)
         {
             this.Kind = kind;
             this._scheme = scheme;
-            this._userName = userName;
-            this._password = password;
+            this._userInfo = userInfo;
             this._host = host;
             this._port = port;
             this._path = path;
             this._query = query;
             this._fragment = fragment;
+        }
+
+        public static Url Create(String url, bool encoded = true)
+        {
+            String scheme, authority, userInfo = "", host = "", path, query, fragment;
+            int port = 0;
+            UrlKind kind;
+
+            if (!encoded) url = HttpUtility.UrlEncode(url);
+
+            //Parsing with regex from RFC 3986, Appendix B. - http://www.ietf.org/rfc/rfc3986.txt
+            var match = Regex.Match(url, @"^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?");
+            authority = match.Groups[4].Value;
+
+            scheme = match.Groups[2].Value.ToLowerInvariant(); //Scheme is case insensitive
+            path = "/" + match.Groups[5].Value.TrimStart('/');
+            query = match.Groups[7].Value;
+            fragment = match.Groups[9].Value;
+
+            //Kind of Url
+            if (!String.IsNullOrEmpty(scheme) || !String.IsNullOrEmpty(authority))
+            {
+                //...Absolute URL
+                kind = UrlKind.Absolute;
+
+                //Check if the Scheme is "illegal"
+                if (String.IsNullOrEmpty(scheme) && Regex.IsMatch(scheme, "https*", RegexOptions.IgnoreCase))
+                {
+                    throw new NotSupportedException("Scheme has to be http or https for an absolute URL");
+                }
+                else
+                {
+                    //Scheme is http or https
+                }
+
+                //Userinfo, host and port are found with further parsing of the authority
+                match = Regex.Match(authority, @"(([^@]+)@)?([^:]+)(:(\d+))?");
+                userInfo = match.Groups[2].Value;
+                host = match.Groups[3].Value.ToLowerInvariant();
+
+                //Port
+                if (!String.IsNullOrEmpty(match.Groups[5].Value))
+                {
+                    port = Convert.ToInt32(match.Groups[5].Value);
+                }
+                else
+                {
+                    //Default port according to the scheme
+                }
+            }
+            else
+            {
+                //...Relative URL, nothing else to do
+                kind = UrlKind.Relative;
+            }
+
+            return new Url(kind, scheme, userInfo, host, port, path, query, fragment);
+        }
+
+        public static Url Create(Uri uri)
+        {
+            return Url.Create(uri.ToString());
         }
 
         /// <summary>
@@ -57,11 +96,11 @@ namespace AlternUrl
             if (this.Kind == UrlKind.Absolute)
             {
                 //Only include username and password if they are present
-                String userNameAndPassword = String.Empty;
+                String userInfo = String.Empty;
 
-                if (!String.IsNullOrWhiteSpace(this.UserName) || !String.IsNullOrWhiteSpace(this.Password))
+                if (!String.IsNullOrWhiteSpace(this.UserInfo))
                 {
-                    userNameAndPassword = this.UserName + ":" + this.Password + "@";
+                    userInfo = this.UserInfo + "@";
                 }
                 else
                 {
@@ -81,7 +120,7 @@ namespace AlternUrl
                     //Default port for this scheme, no need to include it in the URL
                 }
 
-                return String.Format("{0}://{1}{2}{3}{4}", this.Scheme, userNameAndPassword, this.Host, port, this.PathAndQueryAndFragment);
+                return String.Format("{0}://{1}{2}{3}{4}", this.Scheme, userInfo, this.Host, port, this.PathAndQueryAndFragment);
             }
             else
             {
@@ -108,45 +147,26 @@ namespace AlternUrl
         public Url WithScheme(String scheme)
         {
             if (this.Kind == UrlKind.Relative) throw new NotSupportedException("Not supported for a relative URL");
-            else return new Url(this.Kind, scheme, this.UserName, this.Password, this.Host, this.Port, this.Path, this.Query, this.Fragment);
+            else return new Url(this.Kind, scheme, this.UserInfo, this.Host, this.Port, this.Path, this.Query, this.Fragment);
         }
         #endregion
 
-        #region UserName
-        private readonly String _userName;
+        #region UserInfo
+        private readonly String _userInfo;
 
-        public String UserName
+        public String UserInfo
         {
             get
             {
                 if (this.Kind == UrlKind.Relative) throw new NotSupportedException("Not supported for a relative URL");
-                else return this._userName;
+                else return this._userInfo;
             }
         }
 
-        public Url WithUserName(String userName)
+        public Url WithUserInfo(String userInfo)
         {
             if (this.Kind == UrlKind.Relative) throw new NotSupportedException("Not supported for a relative URL");
-            else return new Url(this.Kind, this.Scheme, userName, this.Password, this.Host, this.Port, this.Path, this.Query, this.Fragment);
-        }
-        #endregion
-
-        #region Password
-        private readonly String _password;
-
-        public String Password
-        {
-            get
-            {
-                if (this.Kind == UrlKind.Relative) throw new NotSupportedException("Not supported for a relative URL");
-                else return this._password;
-            }
-        }
-
-        public Url WithPassword(String password)
-        {
-            if (this.Kind == UrlKind.Relative) throw new NotSupportedException("Not supported for a relative URL");
-            else return new Url(this.Kind, this.Scheme, this.UserName, password, this.Host, this.Port, this.Path, this.Query, this.Fragment);
+            else return new Url(this.Kind, this.Scheme, userInfo, this.Host, this.Port, this.Path, this.Query, this.Fragment);
         }
         #endregion
 
@@ -165,7 +185,7 @@ namespace AlternUrl
         public Url WithHost(String host)
         {
             if (this.Kind == UrlKind.Relative) throw new NotSupportedException("Not supported for a relative URL");
-            else return new Url(this.Kind, this.Scheme, this.UserName, this.Password, host, this.Port, this.Path, this.Query, this.Fragment);
+            else return new Url(this.Kind, this.Scheme, this.UserInfo, host, this.Port, this.Path, this.Query, this.Fragment);
         }
         #endregion
 
@@ -177,14 +197,24 @@ namespace AlternUrl
             get
             {
                 if (this.Kind == UrlKind.Relative) throw new NotSupportedException("Not supported for a relative URL");
-                else return this._port;
+                else
+                {
+                    if (this._port != 0)
+                    {
+                        return this._port;
+                    }
+                    else
+                    {
+                        return this.IsHttps ? 443 : 80;
+                    }
+                }
             }
         }
 
         public Url WithPort(int port)
         {
             if (this.Kind == UrlKind.Relative) throw new NotSupportedException("Not supported for a relative URL");
-            else return new Url(this.Kind, this.Scheme, this.UserName, this.Password, this.Host, port, this.Path, this.Query, this.Fragment);
+            else return new Url(this.Kind, this.Scheme, this.UserInfo, this.Host, port, this.Path, this.Query, this.Fragment);
         }
         #endregion
 
@@ -201,7 +231,7 @@ namespace AlternUrl
 
         public Url WithPath(String path)
         {
-            return new Url(this.Kind, this.Scheme, this.UserName, this.Password, this.Host, this.Port, path, this.Query, this.Fragment);
+            return new Url(this.Kind, this.Scheme, this.UserInfo, this.Host, this.Port, path, this.Query, this.Fragment);
         }
         #endregion
 
@@ -218,7 +248,7 @@ namespace AlternUrl
 
         public Url WithQuery(String query)
         {
-            return new Url(this.Kind, this.Scheme, this.UserName, this.Password, this.Host, this.Port, this.Path, query, this.Fragment);
+            return new Url(this.Kind, this.Scheme, this.UserInfo, this.Host, this.Port, this.Path, query, this.Fragment);
         }
 
         public bool HasQuery
@@ -240,7 +270,7 @@ namespace AlternUrl
 
         public Url WithFragment(String fragment)
         {
-            return new Url(this.Kind, this.Scheme, this.UserName, this.Password, this.Host, this.Port, this.Path, this.Query, fragment);
+            return new Url(this.Kind, this.Scheme, this.UserInfo, this.Host, this.Port, this.Path, this.Query, fragment);
         }
 
         public bool HasFragment
@@ -322,7 +352,7 @@ namespace AlternUrl
             {
                 if (this.Kind == UrlKind.Relative) throw new NotSupportedException("Not supported for an relative url");
                 if (this.IsDomainAnIPAddress) throw new NotSupportedException("Not supported for an url who's domain is a numerical IP address");
-                
+
                 return this.Host.Substring(this.Host.LastIndexOf(".") + 1);
             }
         }
@@ -390,12 +420,12 @@ namespace AlternUrl
         {
             if (relativeUrl.Kind == UrlKind.Absolute) throw new NotSupportedException("Not supported for an absolute url");
 
-            return new Url(this.Kind, this.Scheme, this.UserName, this.Password, this.Host, this.Port, this.Path.TrimEnd('/') + "/" + relativeUrl.Path.TrimStart('/'), this.Query, this.Fragment);
+            return new Url(this.Kind, this.Scheme, this.UserInfo, this.Host, this.Port, this.Path.TrimEnd('/') + "/" + relativeUrl.Path.TrimStart('/'), this.Query, this.Fragment);
         }
 
         public Url Concat(String relativeUrl)
         {
-            return this.Concat(new Url(relativeUrl));
+            return this.Concat(Url.Create(relativeUrl));
         }
 
         private Url DoWithParametersDictionary(Action<Dictionary<String, Tuple<String, int>>> action)
@@ -404,7 +434,7 @@ namespace AlternUrl
 
             action(parameters);
 
-            return new Url(this.Kind, this._scheme, this._userName, this._password, this._host, this._port, this._path, this.GetQueryFromParametersDictionary(parameters), this._fragment);
+            return new Url(this.Kind, this._scheme, this._userInfo, this._host, this._port, this._path, this.GetQueryFromParametersDictionary(parameters), this._fragment);
         }
 
         private Dictionary<String, Tuple<String, int>> BuildParametersDictionary()
