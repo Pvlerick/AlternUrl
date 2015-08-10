@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 
 namespace AlternUrl.Test
@@ -286,18 +289,18 @@ namespace AlternUrl.Test
             Assert.Equal(urlData.Normalized, url.ToString());
         }
 
-        [Theory]
-        //https://en.wikipedia.org/wiki/URL_normalization - only normalization that preserves semantics is tested
-        [InlineData("HTTP://www.Example.com/", "http://www.example.com/")]
-        //[InlineData("http://www.example.com/a%c2%b1b", "http://www.example.com/a%C2%B1b")]
-        //[InlineData("http://www.example.com/%7Eusername/", "http://www.example.com/~username/")]
-        [InlineData("http://www.example.com:80/bar.html", "http://www.example.com/bar.html")]
-        public void Normalized(String urlText, String expectedUrlText)
-        {
-            var url = Url.Create(urlText);
+        //[Theory]
+        ////https://en.wikipedia.org/wiki/URL_normalization - only normalization that preserves semantics is tested
+        //[InlineData("HTTP://www.Example.com/", "http://www.example.com/")]
+        ////[InlineData("http://www.example.com/a%c2%b1b", "http://www.example.com/a%C2%B1b")]
+        ////[InlineData("http://www.example.com/%7Eusername/", "http://www.example.com/~username/")]
+        //[InlineData("http://www.example.com:80/bar.html", "http://www.example.com/bar.html")]
+        //public void Normalized(String urlText, String expectedUrlText)
+        //{
+        //    var url = Url.Create(urlText);
 
-            Assert.Equal(expectedUrlText, url.ToString());
-        }
+        //    Assert.Equal(expectedUrlText, url.ToString());
+        //}
 
         [Theory]
         [InlineData("/mail/?foo=12&bar=34#anchor", "/mail/", "foo=12&bar=34", "anchor")]
@@ -473,73 +476,76 @@ namespace AlternUrl.Test
             }
         }
 
-        protected static UrlTestData[] TestData =
+        public static IEnumerable TestData
         {
-            new  UrlTestData("http://www.google.com","http://www.google.com/","http","","www.google.com",80,"/","", ""),
-            new  UrlTestData("HTTP://WWW.GOOGLE.COM","http://www.google.com/","http","","www.google.com",80,"/","", ""),
-            new  UrlTestData("http://www.google.com/","http://www.google.com/","http","","www.google.com",80,"/","", ""),
-            new  UrlTestData("http://www.google.com/mail","http://www.google.com/mail","http","","www.google.com",80,"/mail","", ""),
-            new  UrlTestData("http://WWW.GOOGLE.COM/mail","http://www.google.com/mail","http","","www.google.com",80,"/mail","", ""),
-            new  UrlTestData("http://WWW.GOOGLE.COM/MAIL","http://www.google.com/MAIL","http","","www.google.com",80,"/MAIL","", ""),
-            new  UrlTestData("http://www.google.com/mail/","http://www.google.com/mail/","http","","www.google.com",80,"/mail/","", ""),
-            new  UrlTestData("http://www.google.com/hello.html","http://www.google.com/hello.html","http","","www.google.com",80,"/hello.html","", ""),
-            new  UrlTestData("http://www.google.com/mail/hello.htm","http://www.google.com/mail/hello.htm","http","","www.google.com",80,"/mail/hello.htm","", ""),
-            new  UrlTestData("http://www.google.com/mail/hello.html","http://www.google.com/mail/hello.html","http","","www.google.com",80,"/mail/hello.html","", ""),
-            new  UrlTestData("http://www.google.com/mail/hello.html#","http://www.google.com/mail/hello.html","http","","www.google.com",80,"/mail/hello.html","", ""),
-            new  UrlTestData("http://www.google.com/mail/hello.html#anchor","http://www.google.com/mail/hello.html#anchor","http","","www.google.com",80,"/mail/hello.html","", "anchor"),
-            new  UrlTestData("http://www.google.com/mail/hello.html?","http://www.google.com/mail/hello.html","http","","www.google.com",80,"/mail/hello.html","", ""),
-            new  UrlTestData("http://www.google.com/mail/hello.html?#","http://www.google.com/mail/hello.html","http","","www.google.com",80,"/mail/hello.html","", ""),
-            new  UrlTestData("http://www.google.com/mail/hello.html?foo","http://www.google.com/mail/hello.html?foo","http","","www.google.com",80,"/mail/hello.html","foo", ""),
-            new  UrlTestData("http://www.google.com/mail/hello.html?foo=12","http://www.google.com/mail/hello.html?foo=12","http","","www.google.com",80,"/mail/hello.html","foo=12", ""),
-            new  UrlTestData("http://www.google.com/mail/hello.html?foo=12&bar","http://www.google.com/mail/hello.html?foo=12&bar","http","","www.google.com",80,"/mail/hello.html","foo=12&bar", ""),
-            new  UrlTestData("http://www.google.com/mail/hello.html?foo=12&bar=34","http://www.google.com/mail/hello.html?foo=12&bar=34","http","","www.google.com",80,"/mail/hello.html","foo=12&bar=34", ""),
-            new  UrlTestData("http://www.google.com/mail/hello.html?foo","http://www.google.com/mail/hello.html?foo","http","","www.google.com",80,"/mail/hello.html","foo", ""),
-            new  UrlTestData("http://www.google.com/mail/hello.html?foo#anchor","http://www.google.com/mail/hello.html?foo#anchor","http","","www.google.com",80,"/mail/hello.html","foo", "anchor"),
-            new  UrlTestData("http://www.google.com/mail/hello.html?foo=12","http://www.google.com/mail/hello.html?foo=12","http","","www.google.com",80,"/mail/hello.html","foo=12", ""),
-            new  UrlTestData("http://www.google.com/mail/hello.html?foo=12#anchor","http://www.google.com/mail/hello.html?foo=12#anchor","http","","www.google.com",80,"/mail/hello.html","foo=12", "anchor"),
-            new  UrlTestData("http://www.google.com/mail/hello.html?foo=12&bar","http://www.google.com/mail/hello.html?foo=12&bar","http","","www.google.com",80,"/mail/hello.html","foo=12&bar", ""),
-            new  UrlTestData("http://www.google.com/mail/hello.html?foo=12&bar=34","http://www.google.com/mail/hello.html?foo=12&bar=34","http","","www.google.com",80,"/mail/hello.html","foo=12&bar=34", ""),
-            new  UrlTestData("http://www.google.com/mail/hello.html?foo=12&bar=34#anchor","http://www.google.com/mail/hello.html?foo=12&bar=34#anchor","http","","www.google.com",80,"/mail/hello.html","foo=12&bar=34", "anchor"),
-            new  UrlTestData("http://www.google.com/hello","http://www.google.com/hello","http","","www.google.com",80,"/hello","", ""),
-            new  UrlTestData("http://www.google.com/mail#","http://www.google.com/mail","http","","www.google.com",80,"/mail","", ""),
-            new  UrlTestData("http://www.google.com/mail#anchor","http://www.google.com/mail#anchor","http","","www.google.com",80,"/mail","", "anchor"),
-            new  UrlTestData("http://www.google.com/mail?","http://www.google.com/mail","http","","www.google.com",80,"/mail","", ""),
-            new  UrlTestData("http://www.google.com/mail?#","http://www.google.com/mail","http","","www.google.com",80,"/mail","", ""),
-            new  UrlTestData("http://www.google.com/mail?foo","http://www.google.com/mail?foo","http","","www.google.com",80,"/mail","foo", ""),
-            new  UrlTestData("http://www.google.com/mail?foo=12","http://www.google.com/mail?foo=12","http","","www.google.com",80,"/mail","foo=12", ""),
-            new  UrlTestData("http://www.google.com/mail?foo=12&bar","http://www.google.com/mail?foo=12&bar","http","","www.google.com",80,"/mail","foo=12&bar", ""),
-            new  UrlTestData("http://www.google.com/mail?foo=12&bar=34","http://www.google.com/mail?foo=12&bar=34","http","","www.google.com",80,"/mail","foo=12&bar=34", ""),
-            new  UrlTestData("http://www.google.com/mail?foo","http://www.google.com/mail?foo","http","","www.google.com",80,"/mail","foo", ""),
-            new  UrlTestData("http://www.google.com/mail?foo#anchor","http://www.google.com/mail?foo#anchor","http","","www.google.com",80,"/mail","foo", "anchor"),
-            new  UrlTestData("http://www.google.com/mail?foo=12","http://www.google.com/mail?foo=12","http","","www.google.com",80,"/mail","foo=12", ""),
-            new  UrlTestData("http://www.google.com/mail?foo=12#anchor","http://www.google.com/mail?foo=12#anchor","http","","www.google.com",80,"/mail","foo=12", "anchor"),
-            new  UrlTestData("http://www.google.com/mail?foo=12&bar","http://www.google.com/mail?foo=12&bar","http","","www.google.com",80,"/mail","foo=12&bar", ""),
-            new  UrlTestData("http://www.google.com/mail?foo=12&bar=34","http://www.google.com/mail?foo=12&bar=34","http","","www.google.com",80,"/mail","foo=12&bar=34", ""),
-            new  UrlTestData("http://www.google.com/mail?foo=12&bar=34#anchor","http://www.google.com/mail?foo=12&bar=34#anchor","http","","www.google.com",80,"/mail","foo=12&bar=34", "anchor"),
-            new  UrlTestData("http://www.google.com/mail/","http://www.google.com/mail/","http","","www.google.com",80,"/mail/","", ""),
-            new  UrlTestData("http://www.google.com/mail/#","http://www.google.com/mail/","http","","www.google.com",80,"/mail/","", ""),
-            new  UrlTestData("http://www.google.com/mail/#anchor","http://www.google.com/mail/#anchor","http","","www.google.com",80,"/mail/","", "anchor"),
-            new  UrlTestData("http://www.google.com/mail/?","http://www.google.com/mail/","http","","www.google.com",80,"/mail/","", ""),
-            new  UrlTestData("http://www.google.com/mail/?#","http://www.google.com/mail/","http","","www.google.com",80,"/mail/","", ""),
-            new  UrlTestData("http://www.google.com/mail/?foo","http://www.google.com/mail/?foo","http","","www.google.com",80,"/mail/","foo", ""),
-            new  UrlTestData("http://www.google.com/mail/?foo=12","http://www.google.com/mail/?foo=12","http","","www.google.com",80,"/mail/","foo=12", ""),
-            new  UrlTestData("http://www.google.com/mail/?foo=12&bar","http://www.google.com/mail/?foo=12&bar","http","","www.google.com",80,"/mail/","foo=12&bar", ""),
-            new  UrlTestData("http://www.google.com/mail/?foo=12&bar=34","http://www.google.com/mail/?foo=12&bar=34","http","","www.google.com",80,"/mail/","foo=12&bar=34", ""),
-            new  UrlTestData("http://www.google.com/mail/?foo","http://www.google.com/mail/?foo","http","","www.google.com",80,"/mail/","foo", ""),
-            new  UrlTestData("http://www.google.com/mail/?foo#anchor","http://www.google.com/mail/?foo#anchor","http","","www.google.com",80,"/mail/","foo", "anchor"),
-            new  UrlTestData("http://www.google.com/mail/?foo=12","http://www.google.com/mail/?foo=12","http","","www.google.com",80,"/mail/","foo=12", ""),
-            new  UrlTestData("http://www.google.com/mail/?foo=12#anchor","http://www.google.com/mail/?foo=12#anchor","http","","www.google.com",80,"/mail/","foo=12", "anchor"),
-            new  UrlTestData("http://www.google.com/mail/?foo=12&bar","http://www.google.com/mail/?foo=12&bar","http","","www.google.com",80,"/mail/","foo=12&bar", ""),
-            new  UrlTestData("http://www.google.com/mail/?foo=12&bar=34","http://www.google.com/mail/?foo=12&bar=34","http","","www.google.com",80,"/mail/","foo=12&bar=34", ""),
-            new  UrlTestData("http://www.google.com/mail/?foo=12&bar=34#anchor","http://www.google.com/mail/?foo=12&bar=34#anchor","http","","www.google.com",80,"/mail/","foo=12&bar=34", "anchor"),
-            new  UrlTestData("http://root:mypass@www.google.com/mail/?foo=12&bar=34#anchor","http://root:mypass@www.google.com/mail/?foo=12&bar=34#anchor","http","root:mypass","www.google.com",80,"/mail/","foo=12&bar=34", "anchor"),
-            new  UrlTestData("http://root:mypass@www.google.com:90/mail/?foo=12&bar=34#anchor","http://root:mypass@www.google.com:90/mail/?foo=12&bar=34#anchor","http","root:mypass","www.google.com",90,"/mail/","foo=12&bar=34", "anchor"),
-            new  UrlTestData("https://root:mypass@www.google.com/mail/?foo=12&bar=34#anchor","https://root:mypass@www.google.com/mail/?foo=12&bar=34#anchor","https","root:mypass","www.google.com",443,"/mail/","foo=12&bar=34", "anchor"),
-            new  UrlTestData("https://root:mypass@www.google.com:444/mail/?foo=12&bar=34#anchor","https://root:mypass@www.google.com:444/mail/?foo=12&bar=34#anchor","https","root:mypass","www.google.com",444,"/mail/","foo=12&bar=34", "anchor"),
-            new  UrlTestData("http://root:mypass@www.google.com/mail/?foo=12&bar=34#anchor","http://root:mypass@www.google.com/mail/?foo=12&bar=34#anchor","http","root:mypass","www.google.com",80,"/mail/","foo=12&bar=34", "anchor"),
-            new  UrlTestData("http://www.google.com/mail/?foo=12&bar=34#anchor","http://www.google.com/mail/?foo=12&bar=34#anchor","http","","www.google.com",80,"/mail/","foo=12&bar=34", "anchor"),
-            new  UrlTestData("https://root:mypass@www.google.com/mail/?foo=12&bar=34#anchor","https://root:mypass@www.google.com/mail/?foo=12&bar=34#anchor","https","root:mypass","www.google.com",443,"/mail/","foo=12&bar=34", "anchor"),
-            new  UrlTestData("https://www.google.com/mail/?foo=12&bar=34#anchor","https://www.google.com/mail/?foo=12&bar=34#anchor","https","","www.google.com",443,"/mail/","foo=12&bar=34", "anchor")
-        };
+            get
+                {
+                    yield return new object[] { new UrlTestData("http://www.google.com","http://www.google.com/","http","","www.google.com",80,"/","", "") };
+                    yield return new object[] { new UrlTestData("HTTP://WWW.GOOGLE.COM","http://www.google.com/","http","","www.google.com",80,"/","", "") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/","http://www.google.com/","http","","www.google.com",80,"/","", "") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/mail","http://www.google.com/mail","http","","www.google.com",80,"/mail","", "") };
+                    yield return new object[] { new UrlTestData("http://WWW.GOOGLE.COM/mail","http://www.google.com/mail","http","","www.google.com",80,"/mail","", "") };
+                    yield return new object[] { new UrlTestData("http://WWW.GOOGLE.COM/MAIL","http://www.google.com/MAIL","http","","www.google.com",80,"/MAIL","", "") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/mail/","http://www.google.com/mail/","http","","www.google.com",80,"/mail/","", "") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/hello.html","http://www.google.com/hello.html","http","","www.google.com",80,"/hello.html","", "") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/mail/hello.htm","http://www.google.com/mail/hello.htm","http","","www.google.com",80,"/mail/hello.htm","", "") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/mail/hello.html","http://www.google.com/mail/hello.html","http","","www.google.com",80,"/mail/hello.html","", "") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/mail/hello.html#","http://www.google.com/mail/hello.html","http","","www.google.com",80,"/mail/hello.html","", "") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/mail/hello.html#anchor","http://www.google.com/mail/hello.html#anchor","http","","www.google.com",80,"/mail/hello.html","", "anchor") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/mail/hello.html?","http://www.google.com/mail/hello.html","http","","www.google.com",80,"/mail/hello.html","", "") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/mail/hello.html?#","http://www.google.com/mail/hello.html","http","","www.google.com",80,"/mail/hello.html","", "") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/mail/hello.html?foo","http://www.google.com/mail/hello.html?foo","http","","www.google.com",80,"/mail/hello.html","foo", "") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/mail/hello.html?foo=12","http://www.google.com/mail/hello.html?foo=12","http","","www.google.com",80,"/mail/hello.html","foo=12", "") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/mail/hello.html?foo=12&bar","http://www.google.com/mail/hello.html?foo=12&bar","http","","www.google.com",80,"/mail/hello.html","foo=12&bar", "") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/mail/hello.html?foo=12&bar=34","http://www.google.com/mail/hello.html?foo=12&bar=34","http","","www.google.com",80,"/mail/hello.html","foo=12&bar=34", "") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/mail/hello.html?foo","http://www.google.com/mail/hello.html?foo","http","","www.google.com",80,"/mail/hello.html","foo", "") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/mail/hello.html?foo#anchor","http://www.google.com/mail/hello.html?foo#anchor","http","","www.google.com",80,"/mail/hello.html","foo", "anchor") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/mail/hello.html?foo=12","http://www.google.com/mail/hello.html?foo=12","http","","www.google.com",80,"/mail/hello.html","foo=12", "") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/mail/hello.html?foo=12#anchor","http://www.google.com/mail/hello.html?foo=12#anchor","http","","www.google.com",80,"/mail/hello.html","foo=12", "anchor") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/mail/hello.html?foo=12&bar","http://www.google.com/mail/hello.html?foo=12&bar","http","","www.google.com",80,"/mail/hello.html","foo=12&bar", "") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/mail/hello.html?foo=12&bar=34","http://www.google.com/mail/hello.html?foo=12&bar=34","http","","www.google.com",80,"/mail/hello.html","foo=12&bar=34", "") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/mail/hello.html?foo=12&bar=34#anchor","http://www.google.com/mail/hello.html?foo=12&bar=34#anchor","http","","www.google.com",80,"/mail/hello.html","foo=12&bar=34", "anchor") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/hello","http://www.google.com/hello","http","","www.google.com",80,"/hello","", "") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/mail#","http://www.google.com/mail","http","","www.google.com",80,"/mail","", "") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/mail#anchor","http://www.google.com/mail#anchor","http","","www.google.com",80,"/mail","", "anchor") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/mail?","http://www.google.com/mail","http","","www.google.com",80,"/mail","", "") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/mail?#","http://www.google.com/mail","http","","www.google.com",80,"/mail","", "") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/mail?foo","http://www.google.com/mail?foo","http","","www.google.com",80,"/mail","foo", "") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/mail?foo=12","http://www.google.com/mail?foo=12","http","","www.google.com",80,"/mail","foo=12", "") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/mail?foo=12&bar","http://www.google.com/mail?foo=12&bar","http","","www.google.com",80,"/mail","foo=12&bar", "") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/mail?foo=12&bar=34","http://www.google.com/mail?foo=12&bar=34","http","","www.google.com",80,"/mail","foo=12&bar=34", "") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/mail?foo","http://www.google.com/mail?foo","http","","www.google.com",80,"/mail","foo", "") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/mail?foo#anchor","http://www.google.com/mail?foo#anchor","http","","www.google.com",80,"/mail","foo", "anchor") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/mail?foo=12","http://www.google.com/mail?foo=12","http","","www.google.com",80,"/mail","foo=12", "") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/mail?foo=12#anchor","http://www.google.com/mail?foo=12#anchor","http","","www.google.com",80,"/mail","foo=12", "anchor") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/mail?foo=12&bar","http://www.google.com/mail?foo=12&bar","http","","www.google.com",80,"/mail","foo=12&bar", "") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/mail?foo=12&bar=34","http://www.google.com/mail?foo=12&bar=34","http","","www.google.com",80,"/mail","foo=12&bar=34", "") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/mail?foo=12&bar=34#anchor","http://www.google.com/mail?foo=12&bar=34#anchor","http","","www.google.com",80,"/mail","foo=12&bar=34", "anchor") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/mail/","http://www.google.com/mail/","http","","www.google.com",80,"/mail/","", "") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/mail/#","http://www.google.com/mail/","http","","www.google.com",80,"/mail/","", "") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/mail/#anchor","http://www.google.com/mail/#anchor","http","","www.google.com",80,"/mail/","", "anchor") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/mail/?","http://www.google.com/mail/","http","","www.google.com",80,"/mail/","", "") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/mail/?#","http://www.google.com/mail/","http","","www.google.com",80,"/mail/","", "") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/mail/?foo","http://www.google.com/mail/?foo","http","","www.google.com",80,"/mail/","foo", "") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/mail/?foo=12","http://www.google.com/mail/?foo=12","http","","www.google.com",80,"/mail/","foo=12", "") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/mail/?foo=12&bar","http://www.google.com/mail/?foo=12&bar","http","","www.google.com",80,"/mail/","foo=12&bar", "") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/mail/?foo=12&bar=34","http://www.google.com/mail/?foo=12&bar=34","http","","www.google.com",80,"/mail/","foo=12&bar=34", "") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/mail/?foo","http://www.google.com/mail/?foo","http","","www.google.com",80,"/mail/","foo", "") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/mail/?foo#anchor","http://www.google.com/mail/?foo#anchor","http","","www.google.com",80,"/mail/","foo", "anchor") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/mail/?foo=12","http://www.google.com/mail/?foo=12","http","","www.google.com",80,"/mail/","foo=12", "") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/mail/?foo=12#anchor","http://www.google.com/mail/?foo=12#anchor","http","","www.google.com",80,"/mail/","foo=12", "anchor") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/mail/?foo=12&bar","http://www.google.com/mail/?foo=12&bar","http","","www.google.com",80,"/mail/","foo=12&bar", "") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/mail/?foo=12&bar=34","http://www.google.com/mail/?foo=12&bar=34","http","","www.google.com",80,"/mail/","foo=12&bar=34", "") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/mail/?foo=12&bar=34#anchor","http://www.google.com/mail/?foo=12&bar=34#anchor","http","","www.google.com",80,"/mail/","foo=12&bar=34", "anchor") };
+                    yield return new object[] { new UrlTestData("http://root:mypass@www.google.com/mail/?foo=12&bar=34#anchor","http://root:mypass@www.google.com/mail/?foo=12&bar=34#anchor","http","root:mypass","www.google.com",80,"/mail/","foo=12&bar=34", "anchor") };
+                    yield return new object[] { new UrlTestData("http://root:mypass@www.google.com:90/mail/?foo=12&bar=34#anchor","http://root:mypass@www.google.com:90/mail/?foo=12&bar=34#anchor","http","root:mypass","www.google.com",90,"/mail/","foo=12&bar=34", "anchor") };
+                    yield return new object[] { new UrlTestData("https://root:mypass@www.google.com/mail/?foo=12&bar=34#anchor","https://root:mypass@www.google.com/mail/?foo=12&bar=34#anchor","https","root:mypass","www.google.com",443,"/mail/","foo=12&bar=34", "anchor") };
+                    yield return new object[] { new UrlTestData("https://root:mypass@www.google.com:444/mail/?foo=12&bar=34#anchor","https://root:mypass@www.google.com:444/mail/?foo=12&bar=34#anchor","https","root:mypass","www.google.com",444,"/mail/","foo=12&bar=34", "anchor") };
+                    yield return new object[] { new UrlTestData("http://root:mypass@www.google.com/mail/?foo=12&bar=34#anchor","http://root:mypass@www.google.com/mail/?foo=12&bar=34#anchor","http","root:mypass","www.google.com",80,"/mail/","foo=12&bar=34", "anchor") };
+                    yield return new object[] { new UrlTestData("http://www.google.com/mail/?foo=12&bar=34#anchor","http://www.google.com/mail/?foo=12&bar=34#anchor","http","","www.google.com",80,"/mail/","foo=12&bar=34", "anchor") };
+                    yield return new object[] { new UrlTestData("https://root:mypass@www.google.com/mail/?foo=12&bar=34#anchor","https://root:mypass@www.google.com/mail/?foo=12&bar=34#anchor","https","root:mypass","www.google.com",443,"/mail/","foo=12&bar=34", "anchor") };
+                    yield return new object[] { new UrlTestData("https://www.google.com/mail/?foo=12&bar=34#anchor","https://www.google.com/mail/?foo=12&bar=34#anchor","https","","www.google.com",443,"/mail/","foo=12&bar=34", "anchor") };
+            }
+        }
     }
 }
