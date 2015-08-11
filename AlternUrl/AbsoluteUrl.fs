@@ -15,7 +15,7 @@ open System.Web
 type AbsoluteUrl private (scheme: string, userInfo: string, host: string, port: int, path: string, query: string, fragment: string) = 
     //inherit Url()
     do 
-        if scheme = null then raise (ArgumentNullException("relay"))
+        if scheme = null then raise (ArgumentNullException("scheme"))
 
     new(url: string, [<Optional;DefaultParameterValue(true)>]encoded: bool) =
         if url = null then raise (ArgumentNullException("url"))
@@ -24,12 +24,11 @@ type AbsoluteUrl private (scheme: string, userInfo: string, host: string, port: 
 
         //Parsing with regex from RFC 3986, Appendix B. - http://www.ietf.org/rfc/rfc3986.txt
         let match0 = Regex.Match(url, "^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?")
-
-        if not match0.Success then raise (ArgumentException("url is not valid", "url"))
-
         let scheme = match0.Groups.[2].Value
 
-        if not (Regex.IsMatch(scheme, "https*", RegexOptions.IgnoreCase)) then raise (NotSupportedException("Scheme has to be http or https for an absolute URL"))
+        if not match0.Success || scheme = "" then raise (ArgumentException("url is not valid", "url"))
+
+        if not (Regex.IsMatch(scheme, "https*", RegexOptions.IgnoreCase)) then raise (ArgumentException("Scheme has to be http or https for an absolute URL"))
 
         let authority = match0.Groups.[4].Value
         let path = "/" + match0.Groups.[5].Value.TrimStart('/')
@@ -49,6 +48,7 @@ type AbsoluteUrl private (scheme: string, userInfo: string, host: string, port: 
         AbsoluteUrl(scheme, userInfo, host, port, path, query, fragment)
 
     new(uri: Uri) =
+        if uri = null then raise (ArgumentNullException("uri"))
         AbsoluteUrl(uri.ToString(), true)
 
     member this.Scheme = scheme
