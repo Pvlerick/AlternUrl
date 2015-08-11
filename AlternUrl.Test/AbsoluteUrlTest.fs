@@ -55,3 +55,68 @@ let ``constructor with invalid url throws``(urlText:string) =
     // Exercise system & Verify outcome
     Assert.Throws<ArgumentException>(fun () -> new AbsoluteUrl(urlText) |> ignore)
     // Teardown
+
+[<Theory>]
+[<InlineData("http://www.google.com/", "", false, "", false)>]
+[<InlineData("http://www.google.com", "", false, "", false)>]
+[<InlineData("http://www.google.com/mail", "", false, "", false)>]
+[<InlineData("http://www.google.com/mail/", "", false, "", false)>]
+[<InlineData("http://www.google.com/hello.html", "hello", true, ".html", true)>]
+[<InlineData("http://www.google.com/mail/hello.htm", "hello", true, ".htm", true)>]
+[<InlineData("http://www.google.com/mail/hello.html", "hello", true, ".html", true)>]
+[<InlineData("http://www.google.com/mail/hello.html#", "hello", true, ".html", true)>]
+[<InlineData("http://www.google.com/mail/hello.html#anchor", "hello", true, ".html", true)>]
+[<InlineData("http://www.google.com/mail/hello.html?", "hello", true, ".html", true)>]
+[<InlineData("http://www.google.com/mail/hello.html?#", "hello", true, ".html", true)>]
+[<InlineData("http://www.google.com/mail/hello.html?foo", "hello", true, ".html", true)>]
+[<InlineData("http://www.google.com/mail/hello.html?foo=12", "hello", true, ".html", true)>]
+[<InlineData("http://www.google.com/mail/hello.html?foo=12&bar", "hello", true, ".html", true)>]
+[<InlineData("http://www.google.com/mail/hello.html?foo=12&bar=34", "hello", true, ".html", true)>]
+[<InlineData("http://www.google.com/mail/hello.html?foo", "hello", true, ".html", true)>]
+[<InlineData("http://www.google.com/mail/hello.html?foo#anchor", "hello", true, ".html", true)>]
+[<InlineData("http://www.google.com/mail/hello.html?foo=12", "hello", true, ".html", true)>]
+[<InlineData("http://www.google.com/mail/hello.html?foo=12#anchor", "hello", true, ".html", true)>]
+[<InlineData("http://www.google.com/mail/hello.html?foo=12&bar", "hello", true, ".html", true)>]
+[<InlineData("http://www.google.com/mail/hello.html?foo=12&bar=34", "hello", true, ".html", true)>]
+[<InlineData("http://www.google.com/mail/hello.html?foo=12&bar=34#anchor", "hello", true, ".html", true)>]
+[<InlineData("http://www.google.com/hello", "", false, "", false)>]
+[<InlineData("http://www.google.com/mail#", "", false, "", false)>]
+[<InlineData("http://www.google.com/mail#anchor", "", false, "", false)>]
+[<InlineData("http://www.google.com/mail?", "", false, "", false)>]
+[<InlineData("http://www.google.com/mail?#", "", false, "", false)>]
+[<InlineData("http://www.google.com/mail?foo", "", false, "", false)>]
+[<InlineData("http://www.google.com/mail?foo=12", "", false, "", false)>]
+[<InlineData("http://www.google.com/mail?foo=12&bar", "", false, "", false)>]
+[<InlineData("http://www.google.com/mail?foo=12&bar=34", "", false, "", false)>]
+[<InlineData("http://www.google.com/mail?foo", "", false, "", false)>]
+[<InlineData("http://www.google.com/mail?foo#anchor", "", false, "", false)>]
+[<InlineData("http://www.google.com/mail?foo=12", "", false, "", false)>]
+[<InlineData("http://www.google.com/mail?foo=12#anchor", "", false, "", false)>]
+[<InlineData("http://www.google.com/mail?foo=12&bar", "", false, "", false)>]
+[<InlineData("http://www.google.com/mail?foo=12&bar=34", "", false, "", false)>]
+[<InlineData("http://www.google.com/mail?foo=12&bar=34#anchor", "", false, "", false)>]
+[<InlineData("http://www.google.com/mail/", "", false, "", false)>]
+[<InlineData("http://www.google.com/mail/#", "", false, "", false)>]
+[<InlineData("http://www.google.com/mail/#anchor", "", false, "", false)>]
+[<InlineData("http://www.google.com/mail/?", "", false, "", false)>]
+[<InlineData("http://www.google.com/mail/?#", "", false, "", false)>]
+[<InlineData("http://www.google.com/mail/?foo", "", false, "", false)>]
+[<InlineData("http://www.google.com/mail/?foo=12", "", false, "", false)>]
+[<InlineData("http://www.google.com/mail/?foo=12&bar", "", false, "", false)>]
+[<InlineData("http://www.google.com/mail/?foo=12&bar=34", "", false, "", false)>]
+[<InlineData("http://www.google.com/mail/?foo", "", false, "", false)>]
+[<InlineData("http://www.google.com/mail/?foo#anchor", "", false, "", false)>]
+[<InlineData("http://www.google.com/mail/?foo=12", "", false, "", false)>]
+[<InlineData("http://www.google.com/mail/?foo=12#anchor", "", false, "", false)>]
+[<InlineData("http://www.google.com/mail/?foo=12&bar", "", false, "", false)>]
+[<InlineData("http://www.google.com/mail/?foo=12&bar=34", "", false, "", false)>]
+[<InlineData("http://www.google.com/mail/?foo=12&bar=34#anchor", "", false, "", false)>]
+let ``filename and extension`` (urlText:string, expectedFileName:string, expectedHasFileName:bool, expectedExtension:string, expectedHasExtension:bool) =
+    // Fixture setup
+    let sut = new AbsoluteUrl(urlText)
+    // Exercise system & Verify outcome
+    Assert.Equal(expectedFileName, sut.FileName)
+    Assert.Equal(expectedHasFileName, sut.HasFileName)
+    Assert.Equal(expectedExtension, sut.Extension)
+    Assert.Equal(expectedHasExtension, sut.HasExtension)
+    // Teardown
