@@ -72,19 +72,27 @@ type AbsoluteUrl private (scheme: string, userInfo: string, host: string, port: 
     member this.Path = path
     member this.Query = query
     member this.Fragment = fragment
-    member this.FileName = if this.HasExtension then System.IO.Path.GetFileNameWithoutExtension(this.Path) else ""
-    member this.HasFileName = this.FileName <> ""
-    member this.Extension = System.IO.Path.GetExtension(this.Path)
-    member this.HasExtension = this.Extension <> ""
+    
+    member this.Extension =
+        let ext = System.IO.Path.GetExtension(this.Path)
+        if ext <> "" then Some(ext) else None
+
+    member this.HasExtension =
+        Option.isSome this.Extension
+
+    member this.FileName =
+        if this.HasExtension then Some(System.IO.Path.GetFileNameWithoutExtension(this.Path)) else None
+    
+    member this.HasFileName =
+        Option.isSome this.FileName
 
     member this.IsDomainAnIPAddress = Regex.IsMatch(this.Host, @"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}")
     
     member this.TopLevelDomain =
-        if this.IsDomainAnIPAddress then raise (NotSupportedException("This AbsoluteUrl's domain is an IP address so there is no top level domain. Use the IsDomainAnIpAddress property to check before calling TopLevelDomain."))
-        else this.Host.Substring(this.Host.LastIndexOf(".") + 1);
+        if this.IsDomainAnIPAddress then None else Some(this.Host.Substring(this.Host.LastIndexOf(".") + 1))
 
     member this.SecondLevelDomain = 
-        if this.IsDomainAnIPAddress then raise (NotSupportedException("This AbsoluteUrl's domain is an IP address so there is no second level domain. Use the IsDomainAnIpAddress property to check before calling SecondLevelDomain."))
+        if this.IsDomainAnIPAddress then None
         else
             let hostWithoutTopLevelDomain = this.Host.Substring(0, this.Host.LastIndexOf("."))
-            this.Host.Substring(hostWithoutTopLevelDomain.LastIndexOf(".") + 1)
+            Some(this.Host.Substring(hostWithoutTopLevelDomain.LastIndexOf(".") + 1))
