@@ -10,3 +10,5 @@ TODO:
 - Port the Url code to F#, leave the test code in C#
 - Split into two classes: AbsoluteUrl and RelativeUrl instead of only one class with ugly NotSupported exceptions
 - Refactor test and use AutoFixture
+- Create a build script (run unit tests and code analysis)
+- Make a NuGet package on stable enough
