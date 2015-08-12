@@ -5,12 +5,21 @@ open System.Runtime.InteropServices
 open System.Text.RegularExpressions
 open System.Web
 
+open Scheme
+
+type UserInfo = UserInfo of string
+type Host = Host of string
+type Port = Port of int
+type Path = Path of string
+type Query = Query of string
+type Fragment = Fragment of string
+
 /// <summary>
 /// A class that respresents an absolute url.
 /// E.g: "http://www.github.com/"
 /// </summary>
 type AbsoluteUrl = {
-    Scheme:string
+    Scheme:Scheme.T
     UserInfo:string
     Host:string
     Port:int
@@ -33,12 +42,13 @@ type AbsoluteUrl = {
 
             //Parsing with regex from RFC 3986, Appendix B. - http://www.ietf.org/rfc/rfc3986.txt
             let match0 = Regex.Match(url, "^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?")
-            let scheme = match0.Groups.[2].Value
-
-            if not match0.Success || scheme = "" then raise (ArgumentException("url is not valid", "url"))
-
-            if not (Regex.IsMatch(scheme, "^https?$", RegexOptions.IgnoreCase)) then raise (ArgumentException("Scheme has to be http or https for an absolute URL"))
-
+            if not match0.Success then raise (ArgumentException("url is not valid", "url"))
+            
+            let scheme =
+                match Scheme.create match0.Groups.[2].Value with
+                | Some(s) -> s
+                | None -> raise (ArgumentException("scheme of the url is not valid", "url"))
+            
             let authority = match0.Groups.[4].Value
             let path = "/" + match0.Groups.[5].Value.TrimStart('/')
             let query = match0.Groups.[7].Value
@@ -52,7 +62,7 @@ type AbsoluteUrl = {
             let port =
                 if not (String.IsNullOrEmpty(match1.Groups.[5].Value)) then Convert.ToInt32(match1.Groups.[5].Value)
                 else
-                    if scheme.ToLowerInvariant() = "http" then 80 else 443 //Default port for http(s) schemes
+                    if (Scheme.value scheme).ToLowerInvariant() = "http" then 80 else 443 //Default port for http(s) schemes
 
             { Scheme = scheme; UserInfo = userinfo; Host = host; Port = port; Path = path; Query = query; Fragment = fragment }
 

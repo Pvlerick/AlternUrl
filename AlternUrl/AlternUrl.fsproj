@@ -45,6 +45,8 @@
     <Reference Include="System.Web" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Scheme.fsi" />
+    <Compile Include="Scheme.fs" />
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="AbsoluteUrl.fs" />
   </ItemGroup>

@@ -3,7 +3,7 @@
 type AbsoluteUrlTestData =
     {
         Url:string
-        Scheme:string
+        Scheme:Scheme.T
         UserInfo:string
         Host:string
         Port:int
@@ -14,83 +14,94 @@ type AbsoluteUrlTestData =
 
 let AbsoluteUrlTestData = 
     [
-        { Url = "http://www.google.com"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/"; Query = ""; Fragment = "" }
-        { Url = "HTTP://WWW.GOOGLE.COM"; Scheme = "HTTP"; UserInfo = ""; Host = "WWW.GOOGLE.COM"; Port = 80; Path = "/"; Query = ""; Fragment = "" }
-        { Url = "http://www.google.com/"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/"; Query = ""; Fragment = "" }
-        { Url = "http://www.google.com/mail"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/mail"; Query = ""; Fragment = "" }
-        { Url = "http://WWW.GOOGLE.COM/mail"; Scheme = "http"; UserInfo = ""; Host = "WWW.GOOGLE.COM"; Port = 80; Path = "/mail"; Query = ""; Fragment = "" }
-        { Url = "http://WWW.GOOGLE.COM/MAIL"; Scheme = "http"; UserInfo = ""; Host = "WWW.GOOGLE.COM"; Port = 80; Path = "/MAIL"; Query = ""; Fragment = "" }
-        { Url = "http://www.google.com/mail/"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/mail/"; Query = ""; Fragment = "" }
-        { Url = "http://www.google.com/hello.html"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/hello.html"; Query = ""; Fragment = "" }
-        { Url = "http://www.google.com/mail/hello.htm"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/mail/hello.htm"; Query = ""; Fragment = "" }
-        { Url = "http://www.google.com/mail/hello.html"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/mail/hello.html"; Query = ""; Fragment = "" }
-        { Url = "http://www.google.com/mail/hello.html#"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/mail/hello.html"; Query = ""; Fragment = "" }
-        { Url = "http://www.google.com/mail/hello.html#anchor"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/mail/hello.html"; Query = ""; Fragment = "anchor" }
-        { Url = "http://www.google.com/mail/hello.html?"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/mail/hello.html"; Query = ""; Fragment = "" }
-        { Url = "http://www.google.com/mail/hello.html?#"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/mail/hello.html"; Query = ""; Fragment = "" }
-        { Url = "http://www.google.com/mail/hello.html?foo"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/mail/hello.html"; Query = "foo"; Fragment = "" }
-        { Url = "http://www.google.com/mail/hello.html?foo=12"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/mail/hello.html"; Query = "foo=12"; Fragment = "" }
-        { Url = "http://www.google.com/mail/hello.html?foo=12&bar"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/mail/hello.html"; Query = "foo=12&bar"; Fragment = "" }
-        { Url = "http://www.google.com/mail/hello.html?foo=12&bar=34"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/mail/hello.html"; Query = "foo=12&bar=34"; Fragment = "" }
-        { Url = "http://www.google.com/mail/hello.html?foo"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/mail/hello.html"; Query = "foo"; Fragment = "" }
-        { Url = "http://www.google.com/mail/hello.html?foo#anchor"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/mail/hello.html"; Query = "foo"; Fragment = "anchor" }
-        { Url = "http://www.google.com/mail/hello.html?foo=12"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/mail/hello.html"; Query = "foo=12"; Fragment = "" }
-        { Url = "http://www.google.com/mail/hello.html?foo=12#anchor"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/mail/hello.html"; Query = "foo=12"; Fragment = "anchor" }
-        { Url = "http://www.google.com/mail/hello.html?foo=12&bar"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/mail/hello.html"; Query = "foo=12&bar"; Fragment = "" }
-        { Url = "http://www.google.com/mail/hello.html?foo=12&bar=34"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/mail/hello.html"; Query = "foo=12&bar=34"; Fragment = "" }
-        { Url = "http://www.google.com/mail/hello.html?foo=12&bar=34#anchor"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/mail/hello.html"; Query = "foo=12&bar=34"; Fragment = "anchor" }
-        { Url = "http://www.google.com/hello"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/hello"; Query = ""; Fragment = "" }
-        { Url = "http://www.google.com/mail#"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/mail"; Query = ""; Fragment = "" }
-        { Url = "http://www.google.com/mail#anchor"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/mail"; Query = ""; Fragment = "anchor" }
-        { Url = "http://www.google.com/mail?"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/mail"; Query = ""; Fragment = "" }
-        { Url = "http://www.google.com/mail?#"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/mail"; Query = ""; Fragment = "" }
-        { Url = "http://www.google.com/mail?foo"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/mail"; Query = "foo"; Fragment = "" }
-        { Url = "http://www.google.com/mail?foo=12"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/mail"; Query = "foo=12"; Fragment = "" }
-        { Url = "http://www.google.com/mail?foo=12&bar"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/mail"; Query = "foo=12&bar"; Fragment = "" }
-        { Url = "http://www.google.com/mail?foo=12&bar=34"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/mail"; Query = "foo=12&bar=34"; Fragment = "" }
-        { Url = "http://www.google.com/mail?foo"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/mail"; Query = "foo"; Fragment = "" }
-        { Url = "http://www.google.com/mail?foo#anchor"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/mail"; Query = "foo"; Fragment = "anchor" }
-        { Url = "http://www.google.com/mail?foo=12"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/mail"; Query = "foo=12"; Fragment = "" }
-        { Url = "http://www.google.com/mail?foo=12#anchor"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/mail"; Query = "foo=12"; Fragment = "anchor" }
-        { Url = "http://www.google.com/mail?foo=12&bar"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/mail"; Query = "foo=12&bar"; Fragment = "" }
-        { Url = "http://www.google.com/mail?foo=12&bar=34"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/mail"; Query = "foo=12&bar=34"; Fragment = "" }
-        { Url = "http://www.google.com/mail?foo=12&bar=34#anchor"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/mail"; Query = "foo=12&bar=34"; Fragment = "anchor" }
-        { Url = "http://www.google.com/mail/"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/mail/"; Query = ""; Fragment = "" }
-        { Url = "http://www.google.com/mail/#"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/mail/"; Query = ""; Fragment = "" }
-        { Url = "http://www.google.com/mail/#anchor"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/mail/"; Query = ""; Fragment = "anchor" }
-        { Url = "http://www.google.com/mail/?"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/mail/"; Query = ""; Fragment = "" }
-        { Url = "http://www.google.com/mail/?#"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/mail/"; Query = ""; Fragment = "" }
-        { Url = "http://www.google.com/mail/?foo"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/mail/"; Query = "foo"; Fragment = "" }
-        { Url = "http://www.google.com/mail/?foo=12"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/mail/"; Query = "foo=12"; Fragment = "" }
-        { Url = "http://www.google.com/mail/?foo=12&bar"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/mail/"; Query = "foo=12&bar"; Fragment = "" }
-        { Url = "http://www.google.com/mail/?foo=12&bar=34"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/mail/"; Query = "foo=12&bar=34"; Fragment = "" }
-        { Url = "http://www.google.com/mail/?foo"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/mail/"; Query = "foo"; Fragment = "" }
-        { Url = "http://www.google.com/mail/?foo#anchor"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/mail/"; Query = "foo"; Fragment = "anchor" }
-        { Url = "http://www.google.com/mail/?foo=12"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/mail/"; Query = "foo=12"; Fragment = "" }
-        { Url = "http://www.google.com/mail/?foo=12#anchor"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/mail/"; Query = "foo=12"; Fragment = "anchor" }
-        { Url = "http://www.google.com/mail/?foo=12&bar"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/mail/"; Query = "foo=12&bar"; Fragment = "" }
-        { Url = "http://www.google.com/mail/?foo=12&bar=34"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/mail/"; Query = "foo=12&bar=34"; Fragment = "" }
-        { Url = "http://www.google.com/mail/?foo=12&bar=34#anchor"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/mail/"; Query = "foo=12&bar=34"; Fragment = "anchor" }
-        { Url = "http://root:mypass@www.google.com/mail/?foo=12&bar=34#anchor"; Scheme = "http"; UserInfo = "root:mypass"; Host = "www.google.com"; Port = 80; Path = "/mail/"; Query = "foo=12&bar=34"; Fragment = "anchor" }
-        { Url = "http://root:mypass@www.google.com:90/mail/?foo=12&bar=34#anchor"; Scheme = "http"; UserInfo = "root:mypass"; Host = "www.google.com"; Port = 90; Path = "/mail/"; Query = "foo=12&bar=34"; Fragment = "anchor" }
-        { Url = "https://root:mypass@www.google.com/mail/?foo=12&bar=34#anchor"; Scheme = "https"; UserInfo = "root:mypass"; Host = "www.google.com"; Port = 443; Path = "/mail/"; Query = "foo=12&bar=34"; Fragment = "anchor" }
-        { Url = "https://root:mypass@www.google.com:444/mail/?foo=12&bar=34#anchor"; Scheme = "https"; UserInfo = "root:mypass"; Host = "www.google.com"; Port = 444; Path = "/mail/"; Query = "foo=12&bar=34"; Fragment = "anchor" }
-        { Url = "http://root:mypass@www.google.com/mail/?foo=12&bar=34#anchor"; Scheme = "http"; UserInfo = "root:mypass"; Host = "www.google.com"; Port = 80; Path = "/mail/"; Query = "foo=12&bar=34"; Fragment = "anchor" }
-        { Url = "http://www.google.com/mail/?foo=12&bar=34#anchor"; Scheme = "http"; UserInfo = ""; Host = "www.google.com"; Port = 80; Path = "/mail/"; Query = "foo=12&bar=34"; Fragment = "anchor" }
-        { Url = "https://root:mypass@www.google.com/mail/?foo=12&bar=34#anchor"; Scheme = "https"; UserInfo = "root:mypass"; Host = "www.google.com"; Port = 443; Path = "/mail/"; Query = "foo=12&bar=34"; Fragment = "anchor" }
-        { Url = "https://www.google.com/mail/?foo=12&bar=34#anchor"; Scheme = "https"; UserInfo = ""; Host = "www.google.com"; Port = 443; Path = "/mail/"; Query = "foo=12&bar=34"; Fragment = "anchor" }
-    ] |> Seq.map (fun a -> [| a |])
+        [| "http://www.google.com"; "http"; ""; "www.google.com"; "80"; "/"; ""; "" |]
+        [| "HTTP://WWW.GOOGLE.COM"; "HTTP"; ""; "WWW.GOOGLE.COM"; "80"; "/"; ""; "" |]
+        [| "http://www.google.com/"; "http"; ""; "www.google.com"; "80"; "/"; ""; "" |]
+        [| "http://www.google.com/mail"; "http"; ""; "www.google.com"; "80"; "/mail"; ""; "" |]
+        [| "http://WWW.GOOGLE.COM/mail"; "http"; ""; "WWW.GOOGLE.COM"; "80"; "/mail"; ""; "" |]
+        [| "http://WWW.GOOGLE.COM/MAIL"; "http"; ""; "WWW.GOOGLE.COM"; "80"; "/MAIL"; ""; "" |]
+        [| "http://www.google.com/mail/"; "http"; ""; "www.google.com"; "80"; "/mail/"; ""; "" |]
+        [| "http://www.google.com/hello.html"; "http"; ""; "www.google.com"; "80"; "/hello.html"; ""; "" |]
+        [| "http://www.google.com/mail/hello.htm"; "http"; ""; "www.google.com"; "80"; "/mail/hello.htm"; ""; "" |]
+        [| "http://www.google.com/mail/hello.html"; "http"; ""; "www.google.com"; "80"; "/mail/hello.html"; ""; "" |]
+        [| "http://www.google.com/mail/hello.html#"; "http"; ""; "www.google.com"; "80"; "/mail/hello.html"; ""; "" |]
+        [| "http://www.google.com/mail/hello.html#anchor"; "http"; ""; "www.google.com"; "80"; "/mail/hello.html"; ""; "anchor" |]
+        [| "http://www.google.com/mail/hello.html?"; "http"; ""; "www.google.com"; "80"; "/mail/hello.html"; ""; "" |]
+        [| "http://www.google.com/mail/hello.html?#"; "http"; ""; "www.google.com"; "80"; "/mail/hello.html"; ""; "" |]
+        [| "http://www.google.com/mail/hello.html?foo"; "http"; ""; "www.google.com"; "80"; "/mail/hello.html"; "foo"; "" |]
+        [| "http://www.google.com/mail/hello.html?foo=12"; "http"; ""; "www.google.com"; "80"; "/mail/hello.html"; "foo=12"; "" |]
+        [| "http://www.google.com/mail/hello.html?foo=12&bar"; "http"; ""; "www.google.com"; "80"; "/mail/hello.html"; "foo=12&bar"; "" |]
+        [| "http://www.google.com/mail/hello.html?foo=12&bar=34"; "http"; ""; "www.google.com"; "80"; "/mail/hello.html"; "foo=12&bar=34"; "" |]
+        [| "http://www.google.com/mail/hello.html?foo"; "http"; ""; "www.google.com"; "80"; "/mail/hello.html"; "foo"; "" |]
+        [| "http://www.google.com/mail/hello.html?foo#anchor"; "http"; ""; "www.google.com"; "80"; "/mail/hello.html"; "foo"; "anchor" |]
+        [| "http://www.google.com/mail/hello.html?foo=12"; "http"; ""; "www.google.com"; "80"; "/mail/hello.html"; "foo=12"; "" |]
+        [| "http://www.google.com/mail/hello.html?foo=12#anchor"; "http"; ""; "www.google.com"; "80"; "/mail/hello.html"; "foo=12"; "anchor" |]
+        [| "http://www.google.com/mail/hello.html?foo=12&bar"; "http"; ""; "www.google.com"; "80"; "/mail/hello.html"; "foo=12&bar"; "" |]
+        [| "http://www.google.com/mail/hello.html?foo=12&bar=34"; "http"; ""; "www.google.com"; "80"; "/mail/hello.html"; "foo=12&bar=34"; "" |]
+        [| "http://www.google.com/mail/hello.html?foo=12&bar=34#anchor"; "http"; ""; "www.google.com"; "80"; "/mail/hello.html"; "foo=12&bar=34"; "anchor" |]
+        [| "http://www.google.com/hello"; "http"; ""; "www.google.com"; "80"; "/hello"; ""; "" |]
+        [| "http://www.google.com/mail#"; "http"; ""; "www.google.com"; "80"; "/mail"; ""; "" |]
+        [| "http://www.google.com/mail#anchor"; "http"; ""; "www.google.com"; "80"; "/mail"; ""; "anchor" |]
+        [| "http://www.google.com/mail?"; "http"; ""; "www.google.com"; "80"; "/mail"; ""; "" |]
+        [| "http://www.google.com/mail?#"; "http"; ""; "www.google.com"; "80"; "/mail"; ""; "" |]
+        [| "http://www.google.com/mail?foo"; "http"; ""; "www.google.com"; "80"; "/mail"; "foo"; "" |]
+        [| "http://www.google.com/mail?foo=12"; "http"; ""; "www.google.com"; "80"; "/mail"; "foo=12"; "" |]
+        [| "http://www.google.com/mail?foo=12&bar"; "http"; ""; "www.google.com"; "80"; "/mail"; "foo=12&bar"; "" |]
+        [| "http://www.google.com/mail?foo=12&bar=34"; "http"; ""; "www.google.com"; "80"; "/mail"; "foo=12&bar=34"; "" |]
+        [| "http://www.google.com/mail?foo"; "http"; ""; "www.google.com"; "80"; "/mail"; "foo"; "" |]
+        [| "http://www.google.com/mail?foo#anchor"; "http"; ""; "www.google.com"; "80"; "/mail"; "foo"; "anchor" |]
+        [| "http://www.google.com/mail?foo=12"; "http"; ""; "www.google.com"; "80"; "/mail"; "foo=12"; "" |]
+        [| "http://www.google.com/mail?foo=12#anchor"; "http"; ""; "www.google.com"; "80"; "/mail"; "foo=12"; "anchor" |]
+        [| "http://www.google.com/mail?foo=12&bar"; "http"; ""; "www.google.com"; "80"; "/mail"; "foo=12&bar"; "" |]
+        [| "http://www.google.com/mail?foo=12&bar=34"; "http"; ""; "www.google.com"; "80"; "/mail"; "foo=12&bar=34"; "" |]
+        [| "http://www.google.com/mail?foo=12&bar=34#anchor"; "http"; ""; "www.google.com"; "80"; "/mail"; "foo=12&bar=34"; "anchor" |]
+        [| "http://www.google.com/mail/"; "http"; ""; "www.google.com"; "80"; "/mail/"; ""; "" |]
+        [| "http://www.google.com/mail/#"; "http"; ""; "www.google.com"; "80"; "/mail/"; ""; "" |]
+        [| "http://www.google.com/mail/#anchor"; "http"; ""; "www.google.com"; "80"; "/mail/"; ""; "anchor" |]
+        [| "http://www.google.com/mail/?"; "http"; ""; "www.google.com"; "80"; "/mail/"; ""; "" |]
+        [| "http://www.google.com/mail/?#"; "http"; ""; "www.google.com"; "80"; "/mail/"; ""; "" |]
+        [| "http://www.google.com/mail/?foo"; "http"; ""; "www.google.com"; "80"; "/mail/"; "foo"; "" |]
+        [| "http://www.google.com/mail/?foo=12"; "http"; ""; "www.google.com"; "80"; "/mail/"; "foo=12"; "" |]
+        [| "http://www.google.com/mail/?foo=12&bar"; "http"; ""; "www.google.com"; "80"; "/mail/"; "foo=12&bar"; "" |]
+        [| "http://www.google.com/mail/?foo=12&bar=34"; "http"; ""; "www.google.com"; "80"; "/mail/"; "foo=12&bar=34"; "" |]
+        [| "http://www.google.com/mail/?foo"; "http"; ""; "www.google.com"; "80"; "/mail/"; "foo"; "" |]
+        [| "http://www.google.com/mail/?foo#anchor"; "http"; ""; "www.google.com"; "80"; "/mail/"; "foo"; "anchor" |]
+        [| "http://www.google.com/mail/?foo=12"; "http"; ""; "www.google.com"; "80"; "/mail/"; "foo=12"; "" |]
+        [| "http://www.google.com/mail/?foo=12#anchor"; "http"; ""; "www.google.com"; "80"; "/mail/"; "foo=12"; "anchor" |]
+        [| "http://www.google.com/mail/?foo=12&bar"; "http"; ""; "www.google.com"; "80"; "/mail/"; "foo=12&bar"; "" |]
+        [| "http://www.google.com/mail/?foo=12&bar=34"; "http"; ""; "www.google.com"; "80"; "/mail/"; "foo=12&bar=34"; "" |]
+        [| "http://www.google.com/mail/?foo=12&bar=34#anchor"; "http"; ""; "www.google.com"; "80"; "/mail/"; "foo=12&bar=34"; "anchor" |]
+        [| "http://root:mypass@www.google.com/mail/?foo=12&bar=34#anchor"; "http"; "root:mypass"; "www.google.com"; "80"; "/mail/"; "foo=12&bar=34"; "anchor" |]
+        [| "http://root:mypass@www.google.com:90/mail/?foo=12&bar=34#anchor"; "http"; "root:mypass"; "www.google.com"; "90"; "/mail/"; "foo=12&bar=34"; "anchor" |]
+        [| "https://root:mypass@www.google.com/mail/?foo=12&bar=34#anchor"; "https"; "root:mypass"; "www.google.com"; "443"; "/mail/"; "foo=12&bar=34"; "anchor" |]
+        [| "https://root:mypass@www.google.com:444/mail/?foo=12&bar=34#anchor"; "https"; "root:mypass"; "www.google.com"; "444"; "/mail/"; "foo=12&bar=34"; "anchor" |]
+        [| "http://root:mypass@www.google.com/mail/?foo=12&bar=34#anchor"; "http"; "root:mypass"; "www.google.com"; "80"; "/mail/"; "foo=12&bar=34"; "anchor" |]
+        [| "http://www.google.com/mail/?foo=12&bar=34#anchor"; "http"; ""; "www.google.com"; "80"; "/mail/"; "foo=12&bar=34"; "anchor" |]
+        [| "https://root:mypass@www.google.com/mail/?foo=12&bar=34#anchor"; "https"; "root:mypass"; "www.google.com"; "443"; "/mail/"; "foo=12&bar=34"; "anchor" |]
+        [| "https://www.google.com/mail/?foo=12&bar=34#anchor"; "https"; ""; "www.google.com"; "443"; "/mail/"; "foo=12&bar=34"; "anchor" |]
+    ]
+    |> Seq.map (fun a -> [|
+                            {
+                                Url = a.[0]
+                                Scheme = Option.get (Scheme.create a.[1])
+                                UserInfo = a.[2]
+                                Host = a.[3]
+                                Port = System.Int32.Parse a.[4]
+                                Path = a.[5]
+                                Query = a.[6]
+                                Fragment = a.[7]
+                            } |])
 
 open System
 open Xunit
-open AlternUrl
+open AlternUrl 
 
 [<Fact>]
 let ``constructor with string`` () =
     // Fixture setup
     let sut = AbsoluteUrl.Create("http://username:password@example.com:8042/over/there/index.dtb?type=animal&name=narwhal#nose")
     // Exercise system & Verify outcome
-    Assert.Equal("http", sut.Scheme)
+    Assert.Equal("http", Scheme.value sut.Scheme)
     Assert.Equal("username:password", sut.UserInfo)
     Assert.Equal("example.com", sut.Host)
     Assert.Equal(8042, sut.Port)
@@ -109,7 +120,7 @@ let ``constructor with uri`` () =
     let uri = new Uri("http://username:password@example.com:8042/over/there/index.dtb?type=animal&name=narwhal#nose")
     let sut = AbsoluteUrl.Create(uri)
     // Exercise system & Verify outcome
-    Assert.Equal("http", sut.Scheme)
+    Assert.Equal("http", Scheme.value sut.Scheme)
     Assert.Equal("username:password", sut.UserInfo)
     Assert.Equal("example.com", sut.Host)
     Assert.Equal(8042, sut.Port)
@@ -346,9 +357,10 @@ let ``is domain an IP address`` (urlText:string, expectedIsIPAddress:bool) =
 [<InlineData("http://www.example.com/", "https", "https://www.example.com/")>]
 [<InlineData("https://www.example.com/", "http", "http://www.example.com/")>]
 [<InlineData("http://www.example.com/", "http", "http://www.example.com/")>]
-let ``to string - scheme`` (urlText:string, scheme:string, expectedUrlText:string) =
+let ``to string - scheme`` (urlText:string, schemeText:string, expectedUrlText:string) =
     // Fixture setup
     let sut = AbsoluteUrl.Create(urlText)
+    let scheme = Option.get (Scheme.create schemeText)
     // Exercise system
     let url = { sut with Scheme = scheme }
     // Verify outcome
