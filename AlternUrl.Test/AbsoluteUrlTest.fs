@@ -88,7 +88,7 @@ open AlternUrl
 [<Fact>]
 let ``constructor with string`` () =
     // Fixture setup
-    let sut = new AbsoluteUrl("http://username:password@example.com:8042/over/there/index.dtb?type=animal&name=narwhal#nose")
+    let sut = AbsoluteUrl.Create("http://username:password@example.com:8042/over/there/index.dtb?type=animal&name=narwhal#nose")
     // Exercise system & Verify outcome
     Assert.Equal("http", sut.Scheme)
     Assert.Equal("username:password", sut.UserInfo)
@@ -107,7 +107,7 @@ let ``constructor with string`` () =
 let ``constructor with uri`` () =
     // Fixture setup
     let uri = new Uri("http://username:password@example.com:8042/over/there/index.dtb?type=animal&name=narwhal#nose")
-    let sut = new AbsoluteUrl(uri)
+    let sut = AbsoluteUrl.Create(uri)
     // Exercise system & Verify outcome
     Assert.Equal("http", sut.Scheme)
     Assert.Equal("username:password", sut.UserInfo)
@@ -126,7 +126,7 @@ let ``constructor with uri`` () =
 let ``constructor with null throws``() =
     // Fixture setup
     // Exercise system & Verify outcome
-    Assert.Throws<ArgumentNullException>(fun () -> new AbsoluteUrl(null) |> ignore)
+    Assert.Throws<ArgumentNullException>(fun () -> AbsoluteUrl.Create(null) |> ignore)
     // Teardown
 
 [<Theory>]
@@ -138,7 +138,7 @@ let ``constructor with null throws``() =
 let ``constructor with invalid url throws``(urlText:string) =
     // Fixture setup
     // Exercise system & Verify outcome
-    Assert.Throws<ArgumentException>(fun () -> new AbsoluteUrl(urlText) |> ignore)
+    Assert.Throws<ArgumentException>(fun () -> AbsoluteUrl.Create(urlText) |> ignore)
     // Teardown
 
 [<Theory>]
@@ -200,7 +200,7 @@ let ``filename and extension`` (urlText:string, expectedFileName:string, expecte
     // Fixture setup
     let fileName = if expectedFileName <> "" then Some(expectedFileName) else None
     let extension = if expectedExtension <> "" then Some(expectedExtension) else None
-    let sut = new AbsoluteUrl(urlText)
+    let sut = AbsoluteUrl.Create(urlText)
     // Exercise system & Verify outcome
     Assert.Equal(fileName, sut.FileName)
     Assert.Equal(expectedHasFileName, sut.HasFileName)
@@ -212,7 +212,7 @@ let ``filename and extension`` (urlText:string, expectedFileName:string, expecte
 [<MemberData("AbsoluteUrlTestData")>]
 let ``scheme`` (urlData:AbsoluteUrlTestData) =
     // Fixture setup
-    let sut = new AbsoluteUrl(urlData.Url)
+    let sut = AbsoluteUrl.Create(urlData.Url)
     // Exercise system & Verify outcome
     Assert.Equal(urlData.Scheme, sut.Scheme)
     // Teardown
@@ -221,7 +221,7 @@ let ``scheme`` (urlData:AbsoluteUrlTestData) =
 [<MemberData("AbsoluteUrlTestData")>]
 let ``user info`` (urlData:AbsoluteUrlTestData) =
     // Fixture setup
-    let sut = new AbsoluteUrl(urlData.Url)
+    let sut = AbsoluteUrl.Create(urlData.Url)
     // Exercise system & Verify outcome
     Assert.Equal(urlData.UserInfo, sut.UserInfo)
     // Teardown
@@ -230,7 +230,7 @@ let ``user info`` (urlData:AbsoluteUrlTestData) =
 [<MemberData("AbsoluteUrlTestData")>]
 let ``host`` (urlData:AbsoluteUrlTestData) =
     // Fixture setup
-    let sut = new AbsoluteUrl(urlData.Url)
+    let sut = AbsoluteUrl.Create(urlData.Url)
     // Exercise system & Verify outcome
     Assert.Equal(urlData.Host, sut.Host)
     // Teardown
@@ -239,7 +239,7 @@ let ``host`` (urlData:AbsoluteUrlTestData) =
 [<MemberData("AbsoluteUrlTestData")>]
 let ``port`` (urlData:AbsoluteUrlTestData) =
     // Fixture setup
-    let sut = new AbsoluteUrl(urlData.Url)
+    let sut = AbsoluteUrl.Create(urlData.Url)
     // Exercise system & Verify outcome
     Assert.Equal(urlData.Port, sut.Port)
     // Teardown
@@ -248,7 +248,7 @@ let ``port`` (urlData:AbsoluteUrlTestData) =
 [<MemberData("AbsoluteUrlTestData")>]
 let ``path`` (urlData:AbsoluteUrlTestData) =
     // Fixture setup
-    let sut = new AbsoluteUrl(urlData.Url)
+    let sut = AbsoluteUrl.Create(urlData.Url)
     // Exercise system & Verify outcome
     Assert.Equal(urlData.Path, sut.Path)
     // Teardown
@@ -257,7 +257,7 @@ let ``path`` (urlData:AbsoluteUrlTestData) =
 [<MemberData("AbsoluteUrlTestData")>]
 let ``query`` (urlData:AbsoluteUrlTestData) =
     // Fixture setup
-    let sut = new AbsoluteUrl(urlData.Url)
+    let sut = AbsoluteUrl.Create(urlData.Url)
     // Exercise system & Verify outcome
     Assert.Equal(urlData.Query, sut.Query)
     // Teardown
@@ -266,7 +266,7 @@ let ``query`` (urlData:AbsoluteUrlTestData) =
 [<MemberData("AbsoluteUrlTestData")>]
 let ``fragment`` (urlData:AbsoluteUrlTestData) =
     // Fixture setup
-    let sut = new AbsoluteUrl(urlData.Url)
+    let sut = AbsoluteUrl.Create(urlData.Url)
     // Exercise system & Verify outcome
     Assert.Equal(urlData.Fragment, sut.Fragment)
     // Teardown
@@ -283,7 +283,7 @@ let ``fragment`` (urlData:AbsoluteUrlTestData) =
 let ``top level domain`` (urlText:string, expectedTopLevelDomain:string) =
     // Fixture setup
     let tld = if expectedTopLevelDomain <> "" then Some(expectedTopLevelDomain) else None
-    let sut = new AbsoluteUrl(urlText)
+    let sut = AbsoluteUrl.Create(urlText)
     // Exercise system & Verify outcome
     Assert.Equal(tld, sut.TopLevelDomain)
     // Teardown
@@ -294,7 +294,7 @@ let ``top level domain`` (urlText:string, expectedTopLevelDomain:string) =
 [<InlineData("https://127.0.0.1/")>]
 let ``top level domain return non when domain is an ip address`` (urlText:string) =
     // Fixture setup
-    let sut = new AbsoluteUrl(urlText);
+    let sut = AbsoluteUrl.Create(urlText);
     // Exercise system & Verify outcome
     Assert.True(Option.isNone sut.TopLevelDomain)
     // Teardown
@@ -312,7 +312,7 @@ let ``top level domain return non when domain is an ip address`` (urlText:string
 let ``second level domain`` (urlText:string, expectedSecondLevelDomain:string) =
     // Fixture setup
     let sld = if expectedSecondLevelDomain <> "" then Some(expectedSecondLevelDomain) else None
-    let sut = new AbsoluteUrl(urlText);
+    let sut = AbsoluteUrl.Create(urlText);
     // Exercise system & Verify outcome
     Assert.Equal(sld, sut.SecondLevelDomain);
     // Teardown
@@ -323,11 +323,12 @@ let ``second level domain`` (urlText:string, expectedSecondLevelDomain:string) =
 [<InlineData("https://127.0.0.1/")>]
 let ``SecondLevelDomainThrowsWhenDomainIsAnIpAddress`` (urlText:string) =
     // Fixture setup
-    let sut = new AbsoluteUrl(urlText)
+    let sut = AbsoluteUrl.Create(urlText)
     // Exercise system & Verify outcome
     Assert.True(Option.isNone sut.SecondLevelDomain)
     // Teardown
 
+[<Theory>]
 [<InlineData("http://www.example.com/", false)>]
 [<InlineData("http://www.anotherexample.net/", false)>]
 [<InlineData("http://192.168.1.1/", true)>]
@@ -336,7 +337,73 @@ let ``SecondLevelDomainThrowsWhenDomainIsAnIpAddress`` (urlText:string) =
 [<InlineData("https://127.0.0.1/", true)>]
 let ``is domain an IP address`` (urlText:string, expectedIsIPAddress:bool) =
     // Fixture setup
-    let sut = new AbsoluteUrl(urlText)
+    let sut = AbsoluteUrl.Create(urlText)
     // Exercise system & Verify outcome
     Assert.Equal(expectedIsIPAddress, sut.IsDomainAnIPAddress)
+    // Teardown
+
+[<Theory>]
+[<InlineData("http://www.example.com/", "https", "https://www.example.com/")>]
+[<InlineData("https://www.example.com/", "http", "http://www.example.com/")>]
+[<InlineData("http://www.example.com/", "http", "http://www.example.com/")>]
+let ``to string - scheme`` (urlText:string, scheme:string, expectedUrlText:string) =
+    // Fixture setup
+    let sut = AbsoluteUrl.Create(urlText)
+    // Exercise system
+    let url = { sut with Scheme = scheme }
+    // Verify outcome
+    Assert.Equal(expectedUrlText, url.ToString)
+    // Teardown  
+
+[<Theory>]
+[<InlineData("http://user@www.example.com/", "otheruser", "http://otheruser@www.example.com/")>]
+[<InlineData("https://user:pass@www.example.com/", "otheruser:otherpass", "https://otheruser:otherpass@www.example.com/")>]
+[<InlineData("http://user@www.example.com/", "", "http://www.example.com/")>]
+let ``to string - userinfo`` (urlText:string, userinfo:string, expectedUrlText:string) =
+    // Fixture setup
+    let sut = AbsoluteUrl.Create(urlText)
+    // Exercise system
+    let url = { sut with UserInfo = userinfo }
+    // Verify outcome
+    Assert.Equal(expectedUrlText, url.ToString)
+    // Teardown  
+
+[<Theory>]
+[<InlineData("http://www.example.com/", "www2.google.co.uk", "http://www2.google.co.uk/")>]
+let ``to string - host`` (urlText:string, host:string, expectedUrlText:string) =
+    // Fixture setup
+    let sut = AbsoluteUrl.Create(urlText)
+    // Exercise system
+    let url = { sut with Host = host }
+    // Verify outcome
+    Assert.Equal(expectedUrlText, url.ToString)
+    // Teardown
+
+[<Theory>]
+[<InlineData("http://www.example.com/", "45", "http://www.example.com:45/")>]
+[<InlineData("http://www.example.com:8080/", "8584", "http://www.example.com:8584/")>]
+[<InlineData("http://www.example.com:1234/", "80", "http://www.example.com/")>]
+[<InlineData("https://www.example.com:9090/", "9292", "https://www.example.com:9292/")>]
+[<InlineData("https://www.example.com/", "8080", "https://www.example.com:8080/")>]
+[<InlineData("https://www.example.com:12345/", "442", "https://www.example.com/")>]
+let ``to string - port`` (urlText:string, port:int, expectedUrlText:string) =
+    // Fixture setup
+    let sut = AbsoluteUrl.Create(urlText)
+    // Exercise system
+    let url = { sut with Port = port }
+    // Verify outcome
+    Assert.Equal(expectedUrlText, url.ToString)
+    // Teardown
+
+[<Theory>]
+[<InlineData("http://www.example.com/", "index.html", "http://www.example.com/index.html")>]
+[<InlineData("http://www.example.com", "index.html", "http://www.example.com/index.html")>]
+[<InlineData("http://www.example.com/index.html", "", "http://www.example.com/")>]
+let ``to string - path`` (urlText:string, path:string, expectedUrlText:string) =
+    // Fixture setup
+    let sut = AbsoluteUrl.Create(urlText)
+    // Exercise system
+    let url = { sut with Path = path }
+    // Verify outcome
+    Assert.Equal(expectedUrlText, url.ToString)
     // Teardown
