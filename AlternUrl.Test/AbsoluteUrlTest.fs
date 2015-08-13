@@ -4,12 +4,12 @@ type AbsoluteUrlTestData =
     {
         Url:string
         Scheme:Scheme.T
-        UserInfo:string
+        UserInfo:UserInfo.T option
         Host:string
         Port:int
         Path:string
-        Query:string
-        Fragment:string
+        Query:string option
+        Fragment:string option
     }
 
 let AbsoluteUrlTestData = 
@@ -84,17 +84,17 @@ let AbsoluteUrlTestData =
                             {
                                 Url = a.[0]
                                 Scheme = Option.get (Scheme.create a.[1])
-                                UserInfo = a.[2]
+                                UserInfo = if a.[2] <> "" then UserInfo.create a.[2] else None
                                 Host = a.[3]
                                 Port = System.Int32.Parse a.[4]
                                 Path = a.[5]
-                                Query = a.[6]
-                                Fragment = a.[7]
+                                Query = if a.[6] <> "" then Some(a.[6]) else None
+                                Fragment = if a.[7] <> "" then Some(a.[7]) else None
                             } |])
 
 open System
 open Xunit
-open AlternUrl 
+open AlternUrl
 
 [<Fact>]
 let ``constructor with string`` () =
@@ -102,12 +102,15 @@ let ``constructor with string`` () =
     let sut = AbsoluteUrl.Create("http://username:password@example.com:8042/over/there/index.dtb?type=animal&name=narwhal#nose")
     // Exercise system & Verify outcome
     Assert.Equal("http", Scheme.value sut.Scheme)
-    Assert.Equal("username:password", sut.UserInfo)
+    Assert.True(Option.isSome sut.UserInfo)
+    Assert.Equal("username:password", UserInfo.value (Option.get sut.UserInfo))
     Assert.Equal("example.com", sut.Host)
     Assert.Equal(8042, sut.Port)
     Assert.Equal("/over/there/index.dtb", sut.Path)
-    Assert.Equal("type=animal&name=narwhal", sut.Query)
-    Assert.Equal("nose", sut.Fragment)
+    Assert.True(Option.isSome sut.Query)
+    Assert.Equal("type=animal&name=narwhal", Option.get sut.Query)
+    Assert.True(Option.isSome sut.Fragment)
+    Assert.Equal("nose", Option.get sut.Fragment)
     Assert.True(Option.isSome sut.FileName)
     Assert.Equal("index", Option.get sut.FileName)
     Assert.True(Option.isSome sut.Extension)
@@ -121,12 +124,15 @@ let ``constructor with uri`` () =
     let sut = AbsoluteUrl.Create(uri)
     // Exercise system & Verify outcome
     Assert.Equal("http", Scheme.value sut.Scheme)
-    Assert.Equal("username:password", sut.UserInfo)
+    Assert.True(Option.isSome sut.UserInfo)
+    Assert.Equal("username:password", UserInfo.value (Option.get sut.UserInfo))
     Assert.Equal("example.com", sut.Host)
     Assert.Equal(8042, sut.Port)
     Assert.Equal("/over/there/index.dtb", sut.Path)
-    Assert.Equal("type=animal&name=narwhal", sut.Query)
-    Assert.Equal("nose", sut.Fragment)
+    Assert.True(Option.isSome sut.Query)
+    Assert.Equal("type=animal&name=narwhal", Option.get sut.Query)
+    Assert.True(Option.isSome sut.Fragment)
+    Assert.Equal("nose", Option.get sut.Fragment)
     Assert.True(Option.isSome sut.FileName)
     Assert.Equal("index", Option.get sut.FileName)
     Assert.True(Option.isSome sut.Extension)
@@ -214,9 +220,7 @@ let ``filename and extension`` (urlText:string, expectedFileName:string, expecte
     let sut = AbsoluteUrl.Create(urlText)
     // Exercise system & Verify outcome
     Assert.Equal(fileName, sut.FileName)
-    Assert.Equal(expectedHasFileName, sut.HasFileName)
     Assert.Equal(extension, sut.Extension)
-    Assert.Equal(expectedHasExtension, sut.HasExtension)
     // Teardown
 
 [<Theory>]
@@ -332,7 +336,7 @@ let ``second level domain`` (urlText:string, expectedSecondLevelDomain:string) =
 [<InlineData("http://192.168.0.1:194/")>]
 [<InlineData("http://10.0.1.1/")>]
 [<InlineData("https://127.0.0.1/")>]
-let ``SecondLevelDomainThrowsWhenDomainIsAnIpAddress`` (urlText:string) =
+let ``second level domain throws when domain is an IP address`` (urlText:string) =
     // Fixture setup
     let sut = AbsoluteUrl.Create(urlText)
     // Exercise system & Verify outcome
@@ -354,8 +358,18 @@ let ``is domain an IP address`` (urlText:string, expectedIsIPAddress:bool) =
     // Teardown
 
 [<Theory>]
-[<InlineData("http://www.example.com/", "https", "https://www.example.com/")>]
-[<InlineData("https://www.example.com/", "http", "http://www.example.com/")>]
+[<MemberData("AbsoluteUrlTestData")>]
+let ``to string`` (urlData:AbsoluteUrlTestData) =
+    // Fixture setup
+    let sut = AbsoluteUrl.Create(urlData.Url)
+    // Exercise system & Verify outcome
+    Assert.Equal(urlData.Url, sut.ToString)
+    // Teardown 
+
+//TODO When changin the scheme, if the default port is use the intent is probably keep the default for the scheme, this should be investigated
+[<Theory>]
+[<InlineData("http://www.example.com/", "https", "https://www.example.com:80/")>]
+[<InlineData("https://www.example.com/", "http", "http://www.example.com:443/")>]
 [<InlineData("http://www.example.com/", "http", "http://www.example.com/")>]
 let ``to string - scheme`` (urlText:string, schemeText:string, expectedUrlText:string) =
     // Fixture setup
@@ -375,13 +389,16 @@ let ``to string - userinfo`` (urlText:string, userinfo:string, expectedUrlText:s
     // Fixture setup
     let sut = AbsoluteUrl.Create(urlText)
     // Exercise system
-    let url = { sut with UserInfo = userinfo }
+    let url = { sut with UserInfo = UserInfo.create userinfo }
     // Verify outcome
     Assert.Equal(expectedUrlText, url.ToString)
     // Teardown  
 
 [<Theory>]
+[<InlineData("http://www.example.be/", "www2.google.be", "http://www2.google.be/")>]
 [<InlineData("http://www.example.com/", "www2.google.co.uk", "http://www2.google.co.uk/")>]
+[<InlineData("http://www.example.be/", "www.bing.be", "http://www.bing.be/")>]
+[<InlineData("http://www.example.be/", "www2.github.com", "http://www2.github.com/")>]
 let ``to string - host`` (urlText:string, host:string, expectedUrlText:string) =
     // Fixture setup
     let sut = AbsoluteUrl.Create(urlText)
@@ -416,6 +433,32 @@ let ``to string - path`` (urlText:string, path:string, expectedUrlText:string) =
     let sut = AbsoluteUrl.Create(urlText)
     // Exercise system
     let url = { sut with Path = path }
+    // Verify outcome
+    Assert.Equal(expectedUrlText, url.ToString)
+    // Teardown
+
+[<Theory>]
+[<InlineData("http://www.example.com/", "foo=bar", "http://www.example.com/?foo=bar")>]
+[<InlineData("http://www.example.com", "foo=bar&quz", "http://www.example.com/?foo=bar&quz")>]
+[<InlineData("http://www.example.com/index.html", "foo=bar&quz=quaz", "http://www.example.com/index.html?foo=bar&quz=quaz")>]
+let ``to string - query`` (urlText:string, query:string, expectedUrlText:string) =
+    // Fixture setup
+    let sut = AbsoluteUrl.Create(urlText)
+    // Exercise system
+    let url = { sut with Query = Some(query) }
+    // Verify outcome
+    Assert.Equal(expectedUrlText, url.ToString)
+    // Teardown
+
+[<Theory>]
+[<InlineData("http://www.example.com/", "foo", "http://www.example.com/#foo")>]
+[<InlineData("http://www.example.com", "bar", "http://www.example.com/#bar")>]
+[<InlineData("http://www.example.com/index.html", "quaz", "http://www.example.com/index.html#quaz")>]
+let ``to string - fragment`` (urlText:string, fragment:string, expectedUrlText:string) =
+    // Fixture setup
+    let sut = AbsoluteUrl.Create(urlText)
+    // Exercise system
+    let url = { sut with Fragment = Some(fragment) }
     // Verify outcome
     Assert.Equal(expectedUrlText, url.ToString)
     // Teardown

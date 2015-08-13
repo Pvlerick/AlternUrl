@@ -1,4 +1,4 @@
-﻿module Scheme
+﻿module UserInfo
 
 // encapsulated type
 type T
