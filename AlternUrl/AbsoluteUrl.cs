@@ -9,13 +9,12 @@ using System.Web;
 namespace AlternUrl
 {
     [ImmutableObject(true)]
-    public sealed class Url
+    public sealed class AbsoluteUrl
     {
         int lastParameterIndex = 0;
 
-        private Url(UrlKind kind, String scheme, String userInfo, String host, int port, String path, String query, String fragment)
+        private AbsoluteUrl(String scheme, String userInfo, String host, int port, String path, String query, String fragment)
         {
-            this.Kind = kind;
             this._scheme = scheme;
             this._userInfo = userInfo;
             this._host = host;
@@ -25,11 +24,10 @@ namespace AlternUrl
             this._fragment = fragment;
         }
 
-        public static Url Create(String url, bool encoded = true)
+        public static AbsoluteUrl Create(String url, bool encoded = true)
         {
             String scheme, authority, userInfo = "", host = "", path, query, fragment;
             int port = 0;
-            UrlKind kind;
 
             if (!encoded) url = HttpUtility.UrlEncode(url);
 
@@ -42,49 +40,37 @@ namespace AlternUrl
             query = match.Groups[7].Value;
             fragment = match.Groups[9].Value;
 
-            //Kind of Url
-            if (!String.IsNullOrEmpty(scheme) || !String.IsNullOrEmpty(authority))
+            //Check if the Scheme is "illegal"
+            if (String.IsNullOrEmpty(scheme) && Regex.IsMatch(scheme, "https*", RegexOptions.IgnoreCase))
             {
-                //...Absolute URL
-                kind = UrlKind.Absolute;
-
-                //Check if the Scheme is "illegal"
-                if (String.IsNullOrEmpty(scheme) && Regex.IsMatch(scheme, "https*", RegexOptions.IgnoreCase))
-                {
-                    throw new NotSupportedException("Scheme has to be http or https for an absolute URL");
-                }
-                else
-                {
-                    //Scheme is http or https
-                }
-
-                //Userinfo, host and port are found with further parsing of the authority
-                match = Regex.Match(authority, @"(([^@]+)@)?([^:]+)(:(\d+))?");
-                userInfo = match.Groups[2].Value;
-                host = match.Groups[3].Value.ToLowerInvariant();
-
-                //Port
-                if (!String.IsNullOrEmpty(match.Groups[5].Value))
-                {
-                    port = Convert.ToInt32(match.Groups[5].Value);
-                }
-                else
-                {
-                    //Default port according to the scheme
-                }
+                throw new NotSupportedException("Scheme has to be http or https for an absolute URL");
             }
             else
             {
-                //...Relative URL, nothing else to do
-                kind = UrlKind.Relative;
+                //Scheme is http or https
             }
 
-            return new Url(kind, scheme, userInfo, host, port, path, query, fragment);
+            //Userinfo, host and port are found with further parsing of the authority
+            match = Regex.Match(authority, @"(([^@]+)@)?([^:]+)(:(\d+))?");
+            userInfo = match.Groups[2].Value;
+            host = match.Groups[3].Value.ToLowerInvariant();
+
+            //Port
+            if (!String.IsNullOrEmpty(match.Groups[5].Value))
+            {
+                port = Convert.ToInt32(match.Groups[5].Value);
+            }
+            else
+            {
+                //Default port according to the scheme
+            }
+
+            return new AbsoluteUrl(scheme, userInfo, host, port, path, query, fragment);
         }
 
-        public static Url Create(Uri uri)
+        public static AbsoluteUrl Create(Uri uri)
         {
-            return Url.Create(uri.ToString());
+            return AbsoluteUrl.Create(uri.ToString());
         }
 
         /// <summary>
@@ -93,132 +79,101 @@ namespace AlternUrl
         /// <returns></returns>
         public override string ToString()
         {
-            if (this.Kind == UrlKind.Absolute)
+            //Only include username and password if they are present
+            String userInfo = String.Empty;
+
+            if (!String.IsNullOrWhiteSpace(this.UserInfo))
             {
-                //Only include username and password if they are present
-                String userInfo = String.Empty;
-
-                if (!String.IsNullOrWhiteSpace(this.UserInfo))
-                {
-                    userInfo = this.UserInfo + "@";
-                }
-                else
-                {
-                    //UserName and password not present, no need to include it in the URL
-                }
-
-                //Only include port is it is not the default one for the scheme
-                String port = String.Empty;
-
-                if ((this.Scheme == "http" && this.Port != 80) ||
-                    (this.Scheme == "https" && this.Port != 443))
-                {
-                    port = ":" + this.Port.ToString();
-                }
-                else
-                {
-                    //Default port for this scheme, no need to include it in the URL
-                }
-
-                return String.Format("{0}://{1}{2}{3}{4}", this.Scheme, userInfo, this.Host, port, this.PathAndQueryAndFragment);
+                userInfo = this.UserInfo + "@";
             }
             else
             {
-                return this.PathAndQueryAndFragment;
+                //UserName and password not present, no need to include it in the URL
             }
+
+            //Only include port is it is not the default one for the scheme
+            String port = String.Empty;
+
+            if ((this.Scheme == "http" && this.Port != 80) ||
+                (this.Scheme == "https" && this.Port != 443))
+            {
+                port = ":" + this.Port.ToString();
+            }
+            else
+            {
+                //Default port for this scheme, no need to include it in the URL
+            }
+
+            return String.Format("{0}://{1}{2}{3}{4}", this.Scheme, userInfo, this.Host, port, this.PathAndQueryAndFragment);
         }
 
-        #region Properties and With() methods
-
-        public UrlKind Kind { get; private set; }
-
-        #region Scheme
         private readonly String _scheme;
 
         public String Scheme
         {
             get
             {
-                if (this.Kind == UrlKind.Relative) throw new NotSupportedException("Not supported for a relative URL");
-                else return this._scheme;
+                return this._scheme;
             }
         }
 
-        public Url WithScheme(String scheme)
+        public AbsoluteUrl WithScheme(String scheme)
         {
-            if (this.Kind == UrlKind.Relative) throw new NotSupportedException("Not supported for a relative URL");
-            else return new Url(this.Kind, scheme, this.UserInfo, this.Host, this.Port, this.Path, this.Query, this.Fragment);
+            return new AbsoluteUrl(scheme, this.UserInfo, this.Host, this.Port, this.Path, this.Query, this.Fragment);
         }
-        #endregion
 
-        #region UserInfo
         private readonly String _userInfo;
 
         public String UserInfo
         {
             get
             {
-                if (this.Kind == UrlKind.Relative) throw new NotSupportedException("Not supported for a relative URL");
-                else return this._userInfo;
+                return this._userInfo;
             }
         }
 
-        public Url WithUserInfo(String userInfo)
+        public AbsoluteUrl WithUserInfo(String userInfo)
         {
-            if (this.Kind == UrlKind.Relative) throw new NotSupportedException("Not supported for a relative URL");
-            else return new Url(this.Kind, this.Scheme, userInfo, this.Host, this.Port, this.Path, this.Query, this.Fragment);
+            return new AbsoluteUrl(this.Scheme, userInfo, this.Host, this.Port, this.Path, this.Query, this.Fragment);
         }
-        #endregion
 
-        #region Host
         private readonly String _host;
 
         public String Host
         {
             get
             {
-                if (this.Kind == UrlKind.Relative) throw new NotSupportedException("Not supported for a relative URL");
-                else return this._host;
+                return this._host;
             }
         }
 
-        public Url WithHost(String host)
+        public AbsoluteUrl WithHost(String host)
         {
-            if (this.Kind == UrlKind.Relative) throw new NotSupportedException("Not supported for a relative URL");
-            else return new Url(this.Kind, this.Scheme, this.UserInfo, host, this.Port, this.Path, this.Query, this.Fragment);
+            return new AbsoluteUrl(this.Scheme, this.UserInfo, host, this.Port, this.Path, this.Query, this.Fragment);
         }
-        #endregion
 
-        #region Port
         private readonly int _port;
 
         public int Port
         {
             get
             {
-                if (this.Kind == UrlKind.Relative) throw new NotSupportedException("Not supported for a relative URL");
+                if (this._port != 0)
+                {
+                    return this._port;
+                }
                 else
                 {
-                    if (this._port != 0)
-                    {
-                        return this._port;
-                    }
-                    else
-                    {
-                        return this.IsHttps ? 443 : 80;
-                    }
+                    return this.IsHttps ? 443 : 80;
                 }
             }
         }
 
-        public Url WithPort(int port)
+        public AbsoluteUrl WithPort(int port)
         {
-            if (this.Kind == UrlKind.Relative) throw new NotSupportedException("Not supported for a relative URL");
-            else return new Url(this.Kind, this.Scheme, this.UserInfo, this.Host, port, this.Path, this.Query, this.Fragment);
+            return new AbsoluteUrl(this.Scheme, this.UserInfo, this.Host, port, this.Path, this.Query, this.Fragment);
         }
-        #endregion
 
-        #region Path
         private readonly String _path;
 
         public String Path
@@ -229,13 +184,11 @@ namespace AlternUrl
             }
         }
 
-        public Url WithPath(String path)
+        public AbsoluteUrl WithPath(String path)
         {
-            return new Url(this.Kind, this.Scheme, this.UserInfo, this.Host, this.Port, path, this.Query, this.Fragment);
+            return new AbsoluteUrl(this.Scheme, this.UserInfo, this.Host, this.Port, path, this.Query, this.Fragment);
         }
-        #endregion
 
-        #region Query
         private readonly String _query;
 
         public String Query
@@ -246,18 +199,16 @@ namespace AlternUrl
             }
         }
 
-        public Url WithQuery(String query)
+        public AbsoluteUrl WithQuery(String query)
         {
-            return new Url(this.Kind, this.Scheme, this.UserInfo, this.Host, this.Port, this.Path, query, this.Fragment);
+            return new AbsoluteUrl(this.Scheme, this.UserInfo, this.Host, this.Port, this.Path, query, this.Fragment);
         }
 
         public bool HasQuery
         {
             get { return !String.IsNullOrWhiteSpace(this.Query); }
         }
-        #endregion
 
-        #region Fragment
         private readonly String _fragment;
 
         public String Fragment
@@ -268,16 +219,15 @@ namespace AlternUrl
             }
         }
 
-        public Url WithFragment(String fragment)
+        public AbsoluteUrl WithFragment(String fragment)
         {
-            return new Url(this.Kind, this.Scheme, this.UserInfo, this.Host, this.Port, this.Path, this.Query, fragment);
+            return new AbsoluteUrl(this.Scheme, this.UserInfo, this.Host, this.Port, this.Path, this.Query, fragment);
         }
 
         public bool HasFragment
         {
             get { return !String.IsNullOrWhiteSpace(this._fragment); }
         }
-        #endregion
 
         public String PathAndQuery
         {
@@ -333,8 +283,7 @@ namespace AlternUrl
         {
             get
             {
-                if (this.Kind == UrlKind.Absolute) return String.Equals("https", this.Scheme);
-                else throw new NotSupportedException("Not supported for a relative URL");
+                return String.Equals("https", this.Scheme);
             }
         }
 
@@ -350,8 +299,8 @@ namespace AlternUrl
         {
             get
             {
-                if (this.Kind == UrlKind.Relative) throw new NotSupportedException("Not supported for an relative url");
-                if (this.IsDomainAnIPAddress) throw new NotSupportedException("Not supported for an url who's domain is a numerical IP address");
+                if (this.IsDomainAnIPAddress)
+                    throw new NotSupportedException("Not supported for an url who's domain is a numerical IP address");
 
                 return this.Host.Substring(this.Host.LastIndexOf(".") + 1);
             }
@@ -361,8 +310,8 @@ namespace AlternUrl
         {
             get
             {
-                if (this.Kind == UrlKind.Relative) throw new NotSupportedException("Not supported for an relative url");
-                if (this.IsDomainAnIPAddress) throw new NotSupportedException("Not supported for an url who's domain is a numerical IP address");
+                if (this.IsDomainAnIPAddress)
+                    throw new NotSupportedException("Not supported for an url who's domain is a numerical IP address");
 
                 var hostWithoutTopLevelDomain = this.Host.Substring(0, this.Host.LastIndexOf("."));
 
@@ -370,11 +319,9 @@ namespace AlternUrl
             }
         }
 
-        #endregion
-
         public Uri ToUri()
         {
-            return new Uri(this.ToString(), this.Kind.ToUriKind());
+            return new Uri(this.ToString(), UriKind.Absolute);
         }
 
         public bool HasParameter(String param)
@@ -387,54 +334,52 @@ namespace AlternUrl
             return parameters.ContainsKey(param);
         }
 
-        public Url AddParameter(String param, String value)
+        public AbsoluteUrl AddParameter(String param, String value)
         {
             //TODO Encode the parameter and the value
             return this.DoWithParametersDictionary(p => p.Add(param, Tuple.Create(value, this.lastParameterIndex++)));
         }
 
-        public Url AddParameter(String param)
+        public AbsoluteUrl AddParameter(String param)
         {
             return this.AddParameter(param, String.Empty);
         }
 
-        public Url RemoveParameter(String param)
+        public AbsoluteUrl RemoveParameter(String param)
         {
             return this.DoWithParametersDictionary(p => p.Remove(param));
         }
 
-        public Url SetParameter(String param, String value)
+        public AbsoluteUrl SetParameter(String param, String value)
         {
             if (!this.HasParameter(param)) throw new ArgumentException("param", "Parameter is not present in the query string");
 
             return this.DoWithParametersDictionary(p => p[param] = Tuple.Create(value, p[param].Item2));
         }
 
-        public Url AddOrSetParameter(String param, String value)
+        public AbsoluteUrl AddOrSetParameter(String param, String value)
         {
             if (this.HasParameter(param)) return this.SetParameter(param, value);
             else return this.AddParameter(param, value);
         }
 
-        public Url Concat(Url relativeUrl)
+        public AbsoluteUrl Concat(AbsoluteUrl relativeUrl)
         {
-            if (relativeUrl.Kind == UrlKind.Absolute) throw new NotSupportedException("Not supported for an absolute url");
-
-            return new Url(this.Kind, this.Scheme, this.UserInfo, this.Host, this.Port, this.Path.TrimEnd('/') + "/" + relativeUrl.Path.TrimStart('/'), this.Query, this.Fragment);
+            return new AbsoluteUrl(this.Scheme, this.UserInfo, this.Host, this.Port, this.Path.TrimEnd('/') + "/" + relativeUrl.Path.TrimStart('/'), this.Query, this.Fragment);
         }
 
-        public Url Concat(String relativeUrl)
+        public AbsoluteUrl Concat(String relativeUrl)
         {
-            return this.Concat(Url.Create(relativeUrl));
+            return this.Concat(AbsoluteUrl.Create(relativeUrl));
         }
 
-        private Url DoWithParametersDictionary(Action<Dictionary<String, Tuple<String, int>>> action)
+        private AbsoluteUrl DoWithParametersDictionary(Action<Dictionary<String, Tuple<String, int>>> action)
         {
             var parameters = this.BuildParametersDictionary();
 
             action(parameters);
 
-            return new Url(this.Kind, this._scheme, this._userInfo, this._host, this._port, this._path, this.GetQueryFromParametersDictionary(parameters), this._fragment);
+            return new AbsoluteUrl(this._scheme, this._userInfo, this._host, this._port, this._path, this.GetQueryFromParametersDictionary(parameters), this._fragment);
         }
 
         private Dictionary<String, Tuple<String, int>> BuildParametersDictionary()
