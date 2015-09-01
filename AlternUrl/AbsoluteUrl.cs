@@ -13,15 +13,23 @@ namespace AlternUrl
     {
         int lastParameterIndex = 0;
 
+        public String Scheme { get; }
+        public String UserInfo { get; }
+        public String Host { get; }
+        public int Port { get; }
+        public String Path { get; }
+        public String Query { get; }
+        public String Fragment { get; }
+
         private AbsoluteUrl(String scheme, String userInfo, String host, int port, String path, String query, String fragment)
         {
-            this._scheme = scheme;
-            this._userInfo = userInfo;
-            this._host = host;
-            this._port = port;
-            this._path = path;
-            this._query = query;
-            this._fragment = fragment;
+            this.Scheme = scheme;
+            this.UserInfo = userInfo;
+            this.Host = host;
+            this.Port = port;
+            this.Path = path;
+            this.Query = query;
+            this.Fragment = fragment;
         }
 
         public static AbsoluteUrl Create(String url, bool encoded = true)
@@ -42,13 +50,7 @@ namespace AlternUrl
 
             //Check if the Scheme is "illegal"
             if (String.IsNullOrEmpty(scheme) && Regex.IsMatch(scheme, "https*", RegexOptions.IgnoreCase))
-            {
                 throw new NotSupportedException("Scheme has to be http or https for an absolute URL");
-            }
-            else
-            {
-                //Scheme is http or https
-            }
 
             //Userinfo, host and port are found with further parsing of the authority
             match = Regex.Match(authority, @"(([^@]+)@)?([^:]+)(:(\d+))?");
@@ -57,13 +59,9 @@ namespace AlternUrl
 
             //Port
             if (!String.IsNullOrEmpty(match.Groups[5].Value))
-            {
                 port = Convert.ToInt32(match.Groups[5].Value);
-            }
             else
-            {
-                //Default port according to the scheme
-            }
+                port = scheme == "http" ? 80 : 443;
 
             return new AbsoluteUrl(scheme, userInfo, host, port, path, query, fragment);
         }
@@ -107,29 +105,9 @@ namespace AlternUrl
             return String.Format("{0}://{1}{2}{3}{4}", this.Scheme, userInfo, this.Host, port, this.PathAndQueryAndFragment);
         }
 
-        private readonly String _scheme;
-
-        public String Scheme
-        {
-            get
-            {
-                return this._scheme;
-            }
-        }
-
         public AbsoluteUrl WithScheme(String scheme)
         {
             return new AbsoluteUrl(scheme, this.UserInfo, this.Host, this.Port, this.Path, this.Query, this.Fragment);
-        }
-
-        private readonly String _userInfo;
-
-        public String UserInfo
-        {
-            get
-            {
-                return this._userInfo;
-            }
         }
 
         public AbsoluteUrl WithUserInfo(String userInfo)
@@ -137,36 +115,9 @@ namespace AlternUrl
             return new AbsoluteUrl(this.Scheme, userInfo, this.Host, this.Port, this.Path, this.Query, this.Fragment);
         }
 
-        private readonly String _host;
-
-        public String Host
-        {
-            get
-            {
-                return this._host;
-            }
-        }
-
         public AbsoluteUrl WithHost(String host)
         {
             return new AbsoluteUrl(this.Scheme, this.UserInfo, host, this.Port, this.Path, this.Query, this.Fragment);
-        }
-
-        private readonly int _port;
-
-        public int Port
-        {
-            get
-            {
-                if (this._port != 0)
-                {
-                    return this._port;
-                }
-                else
-                {
-                    return this.IsHttps ? 443 : 80;
-                }
-            }
         }
 
         public AbsoluteUrl WithPort(int port)
@@ -174,29 +125,9 @@ namespace AlternUrl
             return new AbsoluteUrl(this.Scheme, this.UserInfo, this.Host, port, this.Path, this.Query, this.Fragment);
         }
 
-        private readonly String _path;
-
-        public String Path
-        {
-            get
-            {
-                return this._path;
-            }
-        }
-
         public AbsoluteUrl WithPath(String path)
         {
             return new AbsoluteUrl(this.Scheme, this.UserInfo, this.Host, this.Port, path, this.Query, this.Fragment);
-        }
-
-        private readonly String _query;
-
-        public String Query
-        {
-            get
-            {
-                return this._query;
-            }
         }
 
         public AbsoluteUrl WithQuery(String query)
@@ -204,29 +135,19 @@ namespace AlternUrl
             return new AbsoluteUrl(this.Scheme, this.UserInfo, this.Host, this.Port, this.Path, query, this.Fragment);
         }
 
-        public bool HasQuery
-        {
-            get { return !String.IsNullOrWhiteSpace(this.Query); }
-        }
-
-        private readonly String _fragment;
-
-        public String Fragment
-        {
-            get
-            {
-                return this._fragment;
-            }
-        }
-
         public AbsoluteUrl WithFragment(String fragment)
         {
             return new AbsoluteUrl(this.Scheme, this.UserInfo, this.Host, this.Port, this.Path, this.Query, fragment);
         }
 
+        public bool HasQuery
+        {
+            get { return !String.IsNullOrWhiteSpace(this.Query); }
+        }
+
         public bool HasFragment
         {
-            get { return !String.IsNullOrWhiteSpace(this._fragment); }
+            get { return !String.IsNullOrWhiteSpace(this.Fragment); }
         }
 
         public String PathAndQuery
@@ -379,7 +300,7 @@ namespace AlternUrl
 
             action(parameters);
 
-            return new AbsoluteUrl(this._scheme, this._userInfo, this._host, this._port, this._path, this.GetQueryFromParametersDictionary(parameters), this._fragment);
+            return new AbsoluteUrl(this.Scheme, this.UserInfo, this.Host, this.Port, this.Path, this.GetQueryFromParametersDictionary(parameters), this.Fragment);
         }
 
         private Dictionary<String, Tuple<String, int>> BuildParametersDictionary()
