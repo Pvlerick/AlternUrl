@@ -22,7 +22,7 @@ namespace AlternUrl.Test
             Assert.Equal("/over/there/index.dtb", url.Path);
             Assert.Equal("type=animal&name=narwhal", url.Query);
             Assert.Equal("nose", url.Fragment);
-            Assert.Equal("index", url.FileName);
+            Assert.Equal("index.dtb", url.FileName);
             Assert.Equal(".dtb", url.Extension);
             // Teardown  
         }
@@ -32,24 +32,24 @@ namespace AlternUrl.Test
         [InlineData("http://www.google.com", "", false, "", false)]
         [InlineData("http://www.google.com/mail", "", false, "", false)]
         [InlineData("http://www.google.com/mail/", "", false, "", false)]
-        [InlineData("http://www.google.com/hello.html", "hello", true, ".html", true)]
-        [InlineData("http://www.google.com/mail/hello.htm", "hello", true, ".htm", true)]
-        [InlineData("http://www.google.com/mail/hello.html", "hello", true, ".html", true)]
-        [InlineData("http://www.google.com/mail/hello.html#", "hello", true, ".html", true)]
-        [InlineData("http://www.google.com/mail/hello.html#anchor", "hello", true, ".html", true)]
-        [InlineData("http://www.google.com/mail/hello.html?", "hello", true, ".html", true)]
-        [InlineData("http://www.google.com/mail/hello.html?#", "hello", true, ".html", true)]
-        [InlineData("http://www.google.com/mail/hello.html?foo", "hello", true, ".html", true)]
-        [InlineData("http://www.google.com/mail/hello.html?foo=12", "hello", true, ".html", true)]
-        [InlineData("http://www.google.com/mail/hello.html?foo=12&bar", "hello", true, ".html", true)]
-        [InlineData("http://www.google.com/mail/hello.html?foo=12&bar=34", "hello", true, ".html", true)]
-        [InlineData("http://www.google.com/mail/hello.html?foo", "hello", true, ".html", true)]
-        [InlineData("http://www.google.com/mail/hello.html?foo#anchor", "hello", true, ".html", true)]
-        [InlineData("http://www.google.com/mail/hello.html?foo=12", "hello", true, ".html", true)]
-        [InlineData("http://www.google.com/mail/hello.html?foo=12#anchor", "hello", true, ".html", true)]
-        [InlineData("http://www.google.com/mail/hello.html?foo=12&bar", "hello", true, ".html", true)]
-        [InlineData("http://www.google.com/mail/hello.html?foo=12&bar=34", "hello", true, ".html", true)]
-        [InlineData("http://www.google.com/mail/hello.html?foo=12&bar=34#anchor", "hello", true, ".html", true)]
+        [InlineData("http://www.google.com/hello.html", "hello.html", true, ".html", true)]
+        [InlineData("http://www.google.com/mail/hello.htm", "hello.htm", true, ".htm", true)]
+        [InlineData("http://www.google.com/mail/hello.html", "hello.html", true, ".html", true)]
+        [InlineData("http://www.google.com/mail/hello.html#", "hello.html", true, ".html", true)]
+        [InlineData("http://www.google.com/mail/hello.html#anchor", "hello.html", true, ".html", true)]
+        [InlineData("http://www.google.com/mail/hello.html?", "hello.html", true, ".html", true)]
+        [InlineData("http://www.google.com/mail/hello.html?#", "hello.html", true, ".html", true)]
+        [InlineData("http://www.google.com/mail/hello.html?foo", "hello.html", true, ".html", true)]
+        [InlineData("http://www.google.com/mail/hello.html?foo=12", "hello.html", true, ".html", true)]
+        [InlineData("http://www.google.com/mail/hello.html?foo=12&bar", "hello.html", true, ".html", true)]
+        [InlineData("http://www.google.com/mail/hello.html?foo=12&bar=34", "hello.html", true, ".html", true)]
+        [InlineData("http://www.google.com/mail/hello.html?foo", "hello.html", true, ".html", true)]
+        [InlineData("http://www.google.com/mail/hello.html?foo#anchor", "hello.html", true, ".html", true)]
+        [InlineData("http://www.google.com/mail/hello.html?foo=12", "hello.html", true, ".html", true)]
+        [InlineData("http://www.google.com/mail/hello.html?foo=12#anchor", "hello.html", true, ".html", true)]
+        [InlineData("http://www.google.com/mail/hello.html?foo=12&bar", "hello.html", true, ".html", true)]
+        [InlineData("http://www.google.com/mail/hello.html?foo=12&bar=34", "hello.html", true, ".html", true)]
+        [InlineData("http://www.google.com/mail/hello.html?foo=12&bar=34#anchor", "hello.html", true, ".html", true)]
         [InlineData("http://www.google.com/hello", "", false, "", false)]
         [InlineData("http://www.google.com/mail#", "", false, "", false)]
         [InlineData("http://www.google.com/mail#anchor", "", false, "", false)]

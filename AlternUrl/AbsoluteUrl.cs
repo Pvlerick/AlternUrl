@@ -142,22 +142,34 @@ namespace AlternUrl
 
         public bool HasQuery
         {
-            get { return !String.IsNullOrWhiteSpace(this.Query); }
+            get
+            {
+                return !String.IsNullOrWhiteSpace(this.Query);
+            }
         }
 
         public bool HasFragment
         {
-            get { return !String.IsNullOrWhiteSpace(this.Fragment); }
+            get
+            {
+                return !String.IsNullOrWhiteSpace(this.Fragment);
+            }
         }
 
         public String PathAndQuery
         {
-            get { return this.Path + (this.HasQuery ? "?" + this.Query : String.Empty); }
+            get
+            {
+                return this.Path + (this.HasQuery ? "?" + this.Query : String.Empty);
+            }
         }
 
         public String PathAndQueryAndFragment
         {
-            get { return this.PathAndQuery + (this.HasFragment ? "#" + this.Fragment : String.Empty); }
+            get
+            {
+                return this.PathAndQuery + (this.HasFragment ? "#" + this.Fragment : String.Empty);
+            }
         }
 
         /// <summary>
@@ -165,8 +177,24 @@ namespace AlternUrl
         /// E.g: "/path/index.html" will return ".html"
         /// </summary>
         /// <remarks>The dot "." is considered part of the extension</remarks>
-        public String Extension { get { return System.IO.Path.GetExtension(this.Path); } }
-        public bool HasExtension { get { return this.Extension != String.Empty; } }
+        public String Extension
+        {
+            get
+            {
+                return System.IO.Path.GetExtension(this.Path);
+            }
+        }
+
+        /// <summary>
+        /// Returns true if the url has a file with an extension, false otherwise.
+        /// </summary>
+        public bool HasExtension
+        {
+            get
+            {
+                return this.Extension != String.Empty;
+            }
+        }
 
         /// <summary>
         /// Returns a new Url where the extension is replaced by the extension as argument.
@@ -185,8 +213,32 @@ namespace AlternUrl
         //    }
         //}
 
-        public String FileName { get { return this.HasExtension ? System.IO.Path.GetFileNameWithoutExtension(this.Path) : String.Empty; } }
-        public bool HasFileName { get { return this.FileName != String.Empty; } }
+
+        public String FileName
+        {
+            get
+            {
+                if (this.HasExtension)
+                {
+                    return System.IO.Path.GetFileName(this.Path);
+                }
+                else
+                {
+                    return String.Empty;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Returns true if the url has a file name, false otherwise.
+        /// </summary>
+        public bool HasFileName
+        {
+            get
+            {
+                return this.FileName != String.Empty;
+            }
+        }
 
         //public bool HasFileNameAndExtension { get { return this.Extension != String.Empty; } }
 
@@ -221,9 +273,13 @@ namespace AlternUrl
             get
             {
                 if (this.IsDomainAnIPAddress)
+                {
                     throw new NotSupportedException("Not supported for an url who's domain is a numerical IP address");
-
-                return this.Host.Substring(this.Host.LastIndexOf(".") + 1);
+                }
+                else
+                {
+                    return this.Host.Substring(this.Host.LastIndexOf(".") + 1);
+                }
             }
         }
 
@@ -232,11 +288,15 @@ namespace AlternUrl
             get
             {
                 if (this.IsDomainAnIPAddress)
+                {
                     throw new NotSupportedException("Not supported for an url who's domain is a numerical IP address");
+                }
+                else
+                {
+                    var hostWithoutTopLevelDomain = this.Host.Substring(0, this.Host.LastIndexOf("."));
 
-                var hostWithoutTopLevelDomain = this.Host.Substring(0, this.Host.LastIndexOf("."));
-
-                return this.Host.Substring(hostWithoutTopLevelDomain.LastIndexOf(".") + 1);
+                    return this.Host.Substring(hostWithoutTopLevelDomain.LastIndexOf(".") + 1);
+                }
             }
         }
 
@@ -273,15 +333,26 @@ namespace AlternUrl
 
         public AbsoluteUrl SetParameter(String param, String value)
         {
-            if (!this.HasParameter(param)) throw new ArgumentException("param", "Parameter is not present in the query string");
-
-            return this.DoWithParametersDictionary(p => p[param] = Tuple.Create(value, p[param].Item2));
+            if (!this.HasParameter(param))
+            {
+                throw new ArgumentException("param", "Parameter is not present in the query string");
+            }
+            else
+            {
+                return this.DoWithParametersDictionary(p => p[param] = Tuple.Create(value, p[param].Item2));
+            }
         }
 
         public AbsoluteUrl AddOrSetParameter(String param, String value)
         {
-            if (this.HasParameter(param)) return this.SetParameter(param, value);
-            else return this.AddParameter(param, value);
+            if (this.HasParameter(param))
+            {
+                return this.SetParameter(param, value);
+            }
+            else
+            {
+                return this.AddParameter(param, value);
+            }
         }
 
         public AbsoluteUrl Concat(AbsoluteUrl relativeUrl)
@@ -342,8 +413,14 @@ namespace AlternUrl
 
         private String FormatKeyValue(String key, String value)
         {
-            if (String.IsNullOrWhiteSpace(value)) return HttpUtility.UrlEncode(key);
-            else return String.Format("{0}={1}", HttpUtility.UrlEncode(key), HttpUtility.UrlEncode(value));
+            if (String.IsNullOrWhiteSpace(value))
+            {
+                return HttpUtility.UrlEncode(key);
+            }
+            else
+            {
+                return HttpUtility.UrlEncode(key) + "=" + HttpUtility.UrlEncode(value);
+            }
         }
     }
 }
