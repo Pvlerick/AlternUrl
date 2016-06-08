@@ -11,30 +11,30 @@ namespace AlternUrl
     [ImmutableObject(true)]
     public sealed class AbsoluteUrl
     {
-        int lastParameterIndex = 0;
+        int _lastParameterIndex = 0;
 
-        public String Scheme { get; }
-        public String UserInfo { get; }
-        public String Host { get; }
+        public string Scheme { get; }
+        public string UserInfo { get; }
+        public string Host { get; }
         public int Port { get; }
-        public String Path { get; }
-        public String Query { get; }
-        public String Fragment { get; }
+        public string Path { get; }
+        public string Query { get; }
+        public string Fragment { get; }
 
-        private AbsoluteUrl(String scheme, String userInfo, String host, int port, String path, String query, String fragment)
+        private AbsoluteUrl(string scheme, string userInfo, string host, int port, string path, string query, string fragment)
         {
-            this.Scheme = scheme;
-            this.UserInfo = userInfo;
-            this.Host = host;
-            this.Port = port;
-            this.Path = path;
-            this.Query = query;
-            this.Fragment = fragment;
+            Scheme = scheme;
+            UserInfo = userInfo;
+            Host = host;
+            Port = port;
+            Path = path;
+            Query = query;
+            Fragment = fragment;
         }
 
-        public static AbsoluteUrl Create(String url, bool encoded = true)
+        public static AbsoluteUrl Create(string url, bool encoded = true)
         {
-            String scheme, authority, userInfo = "", host = "", path, query, fragment;
+            string scheme, authority, userInfo = "", host = "", path, query, fragment;
             int port = 0;
 
             if (!encoded) url = HttpUtility.UrlEncode(url);
@@ -49,7 +49,7 @@ namespace AlternUrl
             fragment = match.Groups[9].Value;
 
             //Check if the Scheme is "illegal"
-            if (String.IsNullOrEmpty(scheme) && Regex.IsMatch(scheme, "https*", RegexOptions.IgnoreCase))
+            if (string.IsNullOrEmpty(scheme) && Regex.IsMatch(scheme, "https*", RegexOptions.IgnoreCase))
                 throw new NotSupportedException("Scheme has to be http or https for an absolute URL");
 
             //Userinfo, host and port are found with further parsing of the authority
@@ -58,7 +58,7 @@ namespace AlternUrl
             host = match.Groups[3].Value.ToLowerInvariant();
 
             //Port
-            if (!String.IsNullOrEmpty(match.Groups[5].Value))
+            if (!string.IsNullOrEmpty(match.Groups[5].Value))
                 port = Convert.ToInt32(match.Groups[5].Value);
             else
                 port = scheme == "http" ? 80 : 443;
@@ -66,10 +66,7 @@ namespace AlternUrl
             return new AbsoluteUrl(scheme, userInfo, host, port, path, query, fragment);
         }
 
-        public static AbsoluteUrl Create(Uri uri)
-        {
-            return AbsoluteUrl.Create(uri.ToString());
-        }
+        public static AbsoluteUrl Create(Uri uri) => Create(uri.ToString());
 
         /// <summary>
         /// Returns the normalized string of the URL
@@ -78,11 +75,11 @@ namespace AlternUrl
         public override string ToString()
         {
             //Only include username and password if they are present
-            String userInfo = String.Empty;
+            string userInfo = string.Empty;
 
-            if (!String.IsNullOrWhiteSpace(this.UserInfo))
+            if (!string.IsNullOrWhiteSpace(UserInfo))
             {
-                userInfo = this.UserInfo + "@";
+                userInfo = UserInfo + "@";
             }
             else
             {
@@ -90,111 +87,54 @@ namespace AlternUrl
             }
 
             //Only include port is it is not the default one for the scheme
-            String port = String.Empty;
+            string port = string.Empty;
 
-            if ((this.Scheme == "http" && this.Port != 80) ||
-                (this.Scheme == "https" && this.Port != 443))
+            if ((Scheme == "http" && Port != 80) ||
+                (Scheme == "https" && Port != 443))
             {
-                port = ":" + this.Port.ToString();
+                port = ":" + Port.ToString();
             }
             else
             {
                 //Default port for this scheme, no need to include it in the URL
             }
 
-            return String.Format("{0}://{1}{2}{3}{4}", this.Scheme, userInfo, this.Host, port, this.PathAndQueryAndFragment);
+            return string.Format("{0}://{1}{2}{3}{4}", Scheme, userInfo, Host, port, PathAndQueryAndFragment);
         }
 
-        public AbsoluteUrl WithScheme(String scheme)
-        {
-            return new AbsoluteUrl(scheme, this.UserInfo, this.Host, this.Port, this.Path, this.Query, this.Fragment);
-        }
+        public AbsoluteUrl WithScheme(string scheme) => new AbsoluteUrl(scheme, UserInfo, Host, Port, Path, Query, Fragment);
 
-        public AbsoluteUrl WithUserInfo(String userInfo)
-        {
-            return new AbsoluteUrl(this.Scheme, userInfo, this.Host, this.Port, this.Path, this.Query, this.Fragment);
-        }
+        public AbsoluteUrl WithUserInfo(string userInfo) => new AbsoluteUrl(Scheme, userInfo, Host, Port, Path, Query, Fragment);
 
-        public AbsoluteUrl WithHost(String host)
-        {
-            return new AbsoluteUrl(this.Scheme, this.UserInfo, host, this.Port, this.Path, this.Query, this.Fragment);
-        }
+        public AbsoluteUrl WithHost(string host) => new AbsoluteUrl(Scheme, UserInfo, host, Port, Path, Query, Fragment);
 
-        public AbsoluteUrl WithPort(int port)
-        {
-            return new AbsoluteUrl(this.Scheme, this.UserInfo, this.Host, port, this.Path, this.Query, this.Fragment);
-        }
+        public AbsoluteUrl WithPort(int port) => new AbsoluteUrl(Scheme, UserInfo, Host, port, Path, Query, Fragment);
 
-        public AbsoluteUrl WithPath(String path)
-        {
-            return new AbsoluteUrl(this.Scheme, this.UserInfo, this.Host, this.Port, path, this.Query, this.Fragment);
-        }
+        public AbsoluteUrl WithPath(string path) => new AbsoluteUrl(Scheme, UserInfo, Host, Port, path, Query, Fragment);
 
-        public AbsoluteUrl WithQuery(String query)
-        {
-            return new AbsoluteUrl(this.Scheme, this.UserInfo, this.Host, this.Port, this.Path, query, this.Fragment);
-        }
+        public AbsoluteUrl WithQuery(string query) => new AbsoluteUrl(Scheme, UserInfo, Host, Port, Path, query, Fragment);
 
-        public AbsoluteUrl WithFragment(String fragment)
-        {
-            return new AbsoluteUrl(this.Scheme, this.UserInfo, this.Host, this.Port, this.Path, this.Query, fragment);
-        }
+        public AbsoluteUrl WithFragment(string fragment) => new AbsoluteUrl(Scheme, UserInfo, Host, Port, Path, Query, fragment);
 
-        public bool HasQuery
-        {
-            get
-            {
-                return !String.IsNullOrWhiteSpace(this.Query);
-            }
-        }
+        public bool HasQuery => !string.IsNullOrWhiteSpace(Query);
 
-        public bool HasFragment
-        {
-            get
-            {
-                return !String.IsNullOrWhiteSpace(this.Fragment);
-            }
-        }
+        public bool HasFragment => !string.IsNullOrWhiteSpace(Fragment);
 
-        public String PathAndQuery
-        {
-            get
-            {
-                return this.Path + (this.HasQuery ? "?" + this.Query : String.Empty);
-            }
-        }
+        public string PathAndQuery => Path + (HasQuery ? "?" + Query : string.Empty);
 
-        public String PathAndQueryAndFragment
-        {
-            get
-            {
-                return this.PathAndQuery + (this.HasFragment ? "#" + this.Fragment : String.Empty);
-            }
-        }
+        public string PathAndQueryAndFragment => PathAndQuery + (HasFragment ? "#" + Fragment : string.Empty);
 
         /// <summary>
         /// Returns the extension of the file name, if it has one.
         /// E.g: "/path/index.html" will return ".html"
         /// </summary>
         /// <remarks>The dot "." is considered part of the extension</remarks>
-        public String Extension
-        {
-            get
-            {
-                return System.IO.Path.GetExtension(this.Path);
-            }
-        }
+        public string Extension => System.IO.Path.GetExtension(Path);
 
         /// <summary>
         /// Returns true if the url has a file with an extension, false otherwise.
         /// </summary>
-        public bool HasExtension
-        {
-            get
-            {
-                return this.Extension != String.Empty;
-            }
-        }
+        public bool HasExtension => Extension != string.Empty;
 
         /// <summary>
         /// Returns a new Url where the extension is replaced by the extension as argument.
@@ -202,9 +142,9 @@ namespace AlternUrl
         /// </summary>
         /// <remarks>Leading and trailing dots "." will be trimmed.</remarks>
         /// <param name="extension"></param>
-        //public Url WithExtension(String extension)
+        //public Url WithExtension(string extension)
         //{
-        //    if (!this.HasExtension)
+        //    if (!HasExtension)
         //    {
         //        return this;
         //    }
@@ -213,214 +153,111 @@ namespace AlternUrl
         //    }
         //}
 
-
-        public String FileName
-        {
-            get
-            {
-                if (this.HasExtension)
-                {
-                    return System.IO.Path.GetFileName(this.Path);
-                }
-                else
-                {
-                    return String.Empty;
-                }
-            }
-        }
+        /// <summary>
+        /// Returns the file name if there is one, an empty string otherwise.
+        /// </summary>
+        public string FileName => HasExtension ? System.IO.Path.GetFileName(Path) : "";
 
         /// <summary>
         /// Returns true if the url has a file name, false otherwise.
         /// </summary>
-        public bool HasFileName
-        {
-            get
-            {
-                return this.FileName != String.Empty;
-            }
-        }
+        public bool HasFileName => FileName != string.Empty;
 
-        //public bool HasFileNameAndExtension { get { return this.Extension != String.Empty; } }
+        //public bool HasFileNameAndExtension { get { return Extension != string.Empty; } }
 
-        //public Url WithFileNameAndExtension(String fileNameAndExtension)
+        //public Url WithFileNameAndExtension(string fileNameAndExtension)
         //{
-        //    if (this.HasFileNameAndExtension)
+        //    if (HasFileNameAndExtension)
         //    { }
         //    else
         //    {
-        //        return new Url(this.Kind, this.Scheme, this.UserName, this.Password, this.Host, this.Port, this.Path, this.Query, this.Fragment);
+        //        return new Url(Kind, Scheme, UserName, Password, Host, Port, Path, Query, Fragment);
         //    }
         //}
 
-        public bool IsHttps
-        {
-            get
-            {
-                return String.Equals("https", this.Scheme);
-            }
-        }
+        public bool IsHttps => string.Equals("https", Scheme);
 
-        public bool IsDomainAnIPAddress
-        {
-            get
-            {
-                return Regex.IsMatch(this.Host, @"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}");
-            }
-        }
+        public bool IsDomainAnIPAddress => Regex.IsMatch(Host, @"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}");
 
-        public String TopLevelDomain
+        /// <summary>
+        /// Returns the top level domain if there is one, an empty string otherwise.
+        /// </summary>
+        public string TopLevelDomain => !IsDomainAnIPAddress ? Host.Substring(Host.LastIndexOf(".") + 1) : "";
+
+        public string SecondLevelDomain
         {
             get
             {
-                if (this.IsDomainAnIPAddress)
-                {
-                    throw new NotSupportedException("Not supported for an url who's domain is a numerical IP address");
-                }
+                if (IsDomainAnIPAddress)
+                    return "";
                 else
                 {
-                    return this.Host.Substring(this.Host.LastIndexOf(".") + 1);
+                    var hostWithoutTopLevelDomain = Host.Substring(0, Host.LastIndexOf("."));
+                    return Host.Substring(hostWithoutTopLevelDomain.LastIndexOf(".") + 1);
                 }
             }
         }
 
-        public String SecondLevelDomain
+        public Uri ToUri() => new Uri(ToString(), UriKind.Absolute);
+
+        public bool HasParameter(string param)
         {
-            get
-            {
-                if (this.IsDomainAnIPAddress)
-                {
-                    throw new NotSupportedException("Not supported for an url who's domain is a numerical IP address");
-                }
-                else
-                {
-                    var hostWithoutTopLevelDomain = this.Host.Substring(0, this.Host.LastIndexOf("."));
-
-                    return this.Host.Substring(hostWithoutTopLevelDomain.LastIndexOf(".") + 1);
-                }
-            }
-        }
-
-        public Uri ToUri()
-        {
-            return new Uri(this.ToString(), UriKind.Absolute);
-        }
-
-        public bool HasParameter(String param)
-        {
-            var parameters = this.BuildParametersDictionary();
-
-            Console.WriteLine("param: {0}", param);
-            Console.WriteLine("parameters: {0}", parameters.Keys.Aggregate(new StringBuilder(), (sb, s) => sb.AppendFormat("{0}, ", s), sb => sb.ToString()));
-
+            var parameters = BuildParametersDictionary();
             return parameters.ContainsKey(param);
         }
 
-        public AbsoluteUrl AddParameter(String param, String value)
-        {
-            //TODO Encode the parameter and the value
-            return this.DoWithParametersDictionary(p => p.Add(param, Tuple.Create(value, this.lastParameterIndex++)));
-        }
+        //TODO Encode the parameter and the value
+        public AbsoluteUrl SetParameter(string param, string value) => DoWithParametersDictionary(p => p.Add(param, Tuple.Create(value, _lastParameterIndex++)));
 
-        public AbsoluteUrl AddParameter(String param)
-        {
-            return this.AddParameter(param, String.Empty);
-        }
+        public AbsoluteUrl RemoveParameter(string param) => DoWithParametersDictionary(p => p.Remove(param));
 
-        public AbsoluteUrl RemoveParameter(String param)
-        {
-            return this.DoWithParametersDictionary(p => p.Remove(param));
-        }
+        public AbsoluteUrl Concat(AbsoluteUrl relativeUrl) => new AbsoluteUrl(Scheme, UserInfo, Host, Port, Path.TrimEnd('/') + "/" + relativeUrl.Path.TrimStart('/'), Query, Fragment);
 
-        public AbsoluteUrl SetParameter(String param, String value)
-        {
-            if (!this.HasParameter(param))
-            {
-                throw new ArgumentException("param", "Parameter is not present in the query string");
-            }
-            else
-            {
-                return this.DoWithParametersDictionary(p => p[param] = Tuple.Create(value, p[param].Item2));
-            }
-        }
+        public AbsoluteUrl Concat(string relativeUrl) => Concat(Create(relativeUrl));
 
-        public AbsoluteUrl AddOrSetParameter(String param, String value)
+        private AbsoluteUrl DoWithParametersDictionary(Action<Dictionary<string, Tuple<string, int>>> action)
         {
-            if (this.HasParameter(param))
-            {
-                return this.SetParameter(param, value);
-            }
-            else
-            {
-                return this.AddParameter(param, value);
-            }
-        }
-
-        public AbsoluteUrl Concat(AbsoluteUrl relativeUrl)
-        {
-            return new AbsoluteUrl(this.Scheme, this.UserInfo, this.Host, this.Port, this.Path.TrimEnd('/') + "/" + relativeUrl.Path.TrimStart('/'), this.Query, this.Fragment);
-        }
-
-        public AbsoluteUrl Concat(String relativeUrl)
-        {
-            return this.Concat(AbsoluteUrl.Create(relativeUrl));
-        }
-
-        private AbsoluteUrl DoWithParametersDictionary(Action<Dictionary<String, Tuple<String, int>>> action)
-        {
-            var parameters = this.BuildParametersDictionary();
+            var parameters = BuildParametersDictionary();
 
             action(parameters);
 
-            return new AbsoluteUrl(this.Scheme, this.UserInfo, this.Host, this.Port, this.Path, this.GetQueryFromParametersDictionary(parameters), this.Fragment);
+            return new AbsoluteUrl(Scheme, UserInfo, Host, Port, Path, GetQueryFromParametersDictionary(parameters), Fragment);
         }
 
-        private Dictionary<String, Tuple<String, int>> BuildParametersDictionary()
+        private Dictionary<string, Tuple<string, int>> BuildParametersDictionary()
         {
-            var parameters = new Dictionary<String, Tuple<String, int>>();
+            var parameters = new Dictionary<string, Tuple<string, int>>();
 
-            foreach (var keyValue in this.Query.Split('&').Select((s => this.GetKeyValueAsTuple(s))))
+            foreach (var keyValue in Query.Split('&').Select((s => GetKeyValueAsTuple(s))))
             {
-                parameters.Add(keyValue.Item1, Tuple.Create(keyValue.Item2, this.lastParameterIndex++));
+                parameters.Add(keyValue.Item1, Tuple.Create(keyValue.Item2, _lastParameterIndex++));
             }
 
             return parameters;
         }
 
-        private Tuple<String, String> GetKeyValueAsTuple(String keyValue)
+        private Tuple<string, string> GetKeyValueAsTuple(string keyValue)
         {
             var keyValueArray = keyValue.Split('=');
 
             switch (keyValueArray.Length)
             {
                 case 1:
-                    return Tuple.Create(HttpUtility.UrlDecode(keyValueArray[0]), String.Empty);
+                    return Tuple.Create(HttpUtility.UrlDecode(keyValueArray[0]), string.Empty);
                 case 2:
                     return Tuple.Create(HttpUtility.UrlDecode(keyValueArray[0]), keyValueArray[1]);
                 default:
-                    throw new InvalidOperationException("Query seems to contain strange characters..."); //Yeah I know... :-)
+                    throw new InvalidOperationException("Query element contains more than one '=' character");
             }
         }
 
-        private String GetQueryFromParametersDictionary(Dictionary<String, Tuple<String, int>> parameters)
-        {
-            return parameters
-                .OrderBy(kv => kv.Value.Item2)
-                .Select(kv => this.FormatKeyValue(kv.Key, kv.Value.Item1))
+        private string GetQueryFromParametersDictionary(Dictionary<string, Tuple<string, int>> parameters) =>
+            parameters.OrderBy(kv => kv.Value.Item2)
+                .Select(kv => FormatKeyValue(kv.Key, kv.Value.Item1))
                 .Aggregate(new StringBuilder(), (sb, s) => sb.AppendFormat("{0}&", s), sb => sb.ToString())
                 .TrimEnd('&');
 
-        }
-
-        private String FormatKeyValue(String key, String value)
-        {
-            if (String.IsNullOrWhiteSpace(value))
-            {
-                return HttpUtility.UrlEncode(key);
-            }
-            else
-            {
-                return HttpUtility.UrlEncode(key) + "=" + HttpUtility.UrlEncode(value);
-            }
-        }
+        private string FormatKeyValue(string key, string value) =>
+            HttpUtility.UrlEncode(key) + (!string.IsNullOrWhiteSpace(value) ? "=" + HttpUtility.UrlEncode(value) : "");
     }
 }

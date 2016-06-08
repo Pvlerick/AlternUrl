@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections;
 using Xunit;
 
 namespace AlternUrl.Test
@@ -82,7 +79,7 @@ namespace AlternUrl.Test
         [InlineData("http://www.google.com/mail/?foo=12&bar", "", false, "", false)]
         [InlineData("http://www.google.com/mail/?foo=12&bar=34", "", false, "", false)]
         [InlineData("http://www.google.com/mail/?foo=12&bar=34#anchor", "", false, "", false)]
-        public void FileName_HasFileName_And_Extension_HasExtension(String urlText, String expectedFileName, bool expectedHasFileName, String expectedExtension, bool expectedHasExtension)
+        public void FileName_HasFileName_And_Extension_HasExtension(string urlText, string expectedFileName, bool expectedHasFileName, string expectedExtension, bool expectedHasExtension)
         {
             // Fixture setup
             // Exercise system
@@ -188,7 +185,8 @@ namespace AlternUrl.Test
         [InlineData("http://anotherexample.net/", "net")]
         [InlineData("http://againanexample.com:8080/", "com")]
         [InlineData("http://thisisasillyexample.net:194/", "net")]
-        public void TopLevelDomain(String urlText, String expectedTopLevelDomain)
+        [InlineData("http://192.168.1.1/", "")]
+        public void TopLevelDomain(string urlText, string expectedTopLevelDomain)
         {
             // Fixture setup
             // Exercise system
@@ -208,7 +206,8 @@ namespace AlternUrl.Test
         [InlineData("http://againanexample.com:8080/", "againanexample.com")]
         [InlineData("http://thisisasillyexample.net:194/", "thisisasillyexample.net")]
         [InlineData("http://this.is.even.a.sillier.example.net:194/", "example.net")]
-        public void SecondLevelDomain(String urlText, String expectedSecondLevelDomain)
+        [InlineData("http://192.168.1.1/", "")]
+        public void SecondLevelDomain(string urlText, string expectedSecondLevelDomain)
         {
             // Fixture setup
             // Exercise system
@@ -221,26 +220,13 @@ namespace AlternUrl.Test
         [InlineData("http://www.example.com/", false)]
         [InlineData("http://www.anotherexample.net/", false)]
         //[InlineData("http://192.168.1.1/", true)]
-        public void IsDomainIPAddress(String urlText, bool expectedIsIPAddress)
+        public void IsDomainIPAddress(string urlText, bool expectedIsIPAddress)
         {
             // Fixture setup
             // Exercise system
             var url = AbsoluteUrl.Create(urlText);
             // Verify outcome
             Assert.Equal(expectedIsIPAddress, url.IsDomainAnIPAddress);
-            // Teardown
-        }
-
-        [Theory]
-        [InlineData("http://192.168.1.1/")]
-        public void TopLevelDomain_And_SecondLevelDomain_ThrowWithIPDomain(String urlText)
-        {
-            // Fixture setup
-            // Exercise system
-            var url = AbsoluteUrl.Create(urlText);
-            // Verify outcome
-            Assert.Throws<NotSupportedException>(() => { var x = url.TopLevelDomain; });
-            Assert.Throws<NotSupportedException>(() => { var x = url.SecondLevelDomain; });
             // Teardown
         }
 
@@ -261,7 +247,7 @@ namespace AlternUrl.Test
         [InlineData("https://www.google.com/mail/?foo=12&bar=34#anchor", true)]
         [InlineData("HTTP://www.google.com/mail/?foo=12&bar=34#anchor", false)]
         [InlineData("HTTPS://www.google.com/mail/?foo=12&bar=34#anchor", true)]
-        public void IsHttps_AbsoluteUrl(String urlText, bool expectedResult)
+        public void IsHttps_AbsoluteUrl(string urlText, bool expectedResult)
         {
             // Fixture setup
             // Exercise system
@@ -286,7 +272,7 @@ namespace AlternUrl.Test
         [InlineData("https://www.google.com/mail/hello.html?this+is+a+test=how+did+it+go", "this is a test", true)]
         [InlineData("https://www.google.com/mail/hello.html?this+is+a+test#anchor", "this is a test", true)]
         [InlineData("https://www.google.com/mail/hello.html?this+is+a+test=how+did+it+go#anchor", "this is a test", true)]
-        public void HasParameter(String urlText, String parameter, bool expectedResult)
+        public void HasParameter(string urlText, string parameter, bool expectedResult)
         {
             // Fixture setup
             // Exercise system
@@ -304,7 +290,7 @@ namespace AlternUrl.Test
         [InlineData("https://www.google.com/mail/?foo=12&bar=13", "foo", "bar=13", "/mail/?bar=13", "/mail/?bar=13")]
         [InlineData("https://www.google.com/mail/?foo#anchor", "foo", "", "/mail/", "/mail/#anchor")]
         [InlineData("https://www.google.com/mail/?foo=12#anchor", "foo", "", "/mail/", "/mail/#anchor")]
-        public void RemoveParameter(String urlText, String parameter, String expectedQuery, String expectedPathAndQuery, String expectedPathAndQueryAndFragment)
+        public void RemoveParameter(string urlText, string parameter, string expectedQuery, string expectedPathAndQuery, string expectedPathAndQueryAndFragment)
         {
             // Fixture setup
             // Exercise system
@@ -318,27 +304,27 @@ namespace AlternUrl.Test
 
         public class UrlTestData
         {
-            public String Url { get; set; }
-            public String Normalized { get; set; }
-            public String Scheme { get; set; }
-            public String UserInfo { get; set; }
-            public String Host { get; set; }
+            public string Url { get; set; }
+            public string Normalized { get; set; }
+            public string Scheme { get; set; }
+            public string UserInfo { get; set; }
+            public string Host { get; set; }
             public int Port { get; set; }
-            public String Path { get; set; }
-            public String Query { get; set; }
-            public String Fragment { get; set; }
+            public string Path { get; set; }
+            public string Query { get; set; }
+            public string Fragment { get; set; }
 
-            public UrlTestData(String url, String urlToString, String scheme, String userInfo, String host, int port, String path, String query, String fragment)
+            public UrlTestData(string url, string urlToString, string scheme, string userInfo, string host, int port, string path, string query, string fragment)
             {
-                this.Url = url;
-                this.Normalized = urlToString;
-                this.Scheme = scheme;
-                this.UserInfo = userInfo;
-                this.Host = host;
-                this.Port = port;
-                this.Path = path;
-                this.Query = query;
-                this.Fragment = fragment;
+                Url = url;
+                Normalized = urlToString;
+                Scheme = scheme;
+                UserInfo = userInfo;
+                Host = host;
+                Port = port;
+                Path = path;
+                Query = query;
+                Fragment = fragment;
             }
         }
 
