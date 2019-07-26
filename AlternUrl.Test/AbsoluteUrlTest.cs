@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using Xunit;
 
 namespace AlternUrl.Test
@@ -40,12 +41,8 @@ namespace AlternUrl.Test
         [InlineData("http://www.google.com/mail/hello.html?foo=12", "hello.html", true, ".html", true)]
         [InlineData("http://www.google.com/mail/hello.html?foo=12&bar", "hello.html", true, ".html", true)]
         [InlineData("http://www.google.com/mail/hello.html?foo=12&bar=34", "hello.html", true, ".html", true)]
-        [InlineData("http://www.google.com/mail/hello.html?foo", "hello.html", true, ".html", true)]
         [InlineData("http://www.google.com/mail/hello.html?foo#anchor", "hello.html", true, ".html", true)]
-        [InlineData("http://www.google.com/mail/hello.html?foo=12", "hello.html", true, ".html", true)]
         [InlineData("http://www.google.com/mail/hello.html?foo=12#anchor", "hello.html", true, ".html", true)]
-        [InlineData("http://www.google.com/mail/hello.html?foo=12&bar", "hello.html", true, ".html", true)]
-        [InlineData("http://www.google.com/mail/hello.html?foo=12&bar=34", "hello.html", true, ".html", true)]
         [InlineData("http://www.google.com/mail/hello.html?foo=12&bar=34#anchor", "hello.html", true, ".html", true)]
         [InlineData("http://www.google.com/hello", "", false, "", false)]
         [InlineData("http://www.google.com/mail#", "", false, "", false)]
@@ -56,14 +53,9 @@ namespace AlternUrl.Test
         [InlineData("http://www.google.com/mail?foo=12", "", false, "", false)]
         [InlineData("http://www.google.com/mail?foo=12&bar", "", false, "", false)]
         [InlineData("http://www.google.com/mail?foo=12&bar=34", "", false, "", false)]
-        [InlineData("http://www.google.com/mail?foo", "", false, "", false)]
         [InlineData("http://www.google.com/mail?foo#anchor", "", false, "", false)]
-        [InlineData("http://www.google.com/mail?foo=12", "", false, "", false)]
         [InlineData("http://www.google.com/mail?foo=12#anchor", "", false, "", false)]
-        [InlineData("http://www.google.com/mail?foo=12&bar", "", false, "", false)]
-        [InlineData("http://www.google.com/mail?foo=12&bar=34", "", false, "", false)]
         [InlineData("http://www.google.com/mail?foo=12&bar=34#anchor", "", false, "", false)]
-        [InlineData("http://www.google.com/mail/", "", false, "", false)]
         [InlineData("http://www.google.com/mail/#", "", false, "", false)]
         [InlineData("http://www.google.com/mail/#anchor", "", false, "", false)]
         [InlineData("http://www.google.com/mail/?", "", false, "", false)]
@@ -72,12 +64,8 @@ namespace AlternUrl.Test
         [InlineData("http://www.google.com/mail/?foo=12", "", false, "", false)]
         [InlineData("http://www.google.com/mail/?foo=12&bar", "", false, "", false)]
         [InlineData("http://www.google.com/mail/?foo=12&bar=34", "", false, "", false)]
-        [InlineData("http://www.google.com/mail/?foo", "", false, "", false)]
         [InlineData("http://www.google.com/mail/?foo#anchor", "", false, "", false)]
-        [InlineData("http://www.google.com/mail/?foo=12", "", false, "", false)]
         [InlineData("http://www.google.com/mail/?foo=12#anchor", "", false, "", false)]
-        [InlineData("http://www.google.com/mail/?foo=12&bar", "", false, "", false)]
-        [InlineData("http://www.google.com/mail/?foo=12&bar=34", "", false, "", false)]
         [InlineData("http://www.google.com/mail/?foo=12&bar=34#anchor", "", false, "", false)]
         public void FileName_HasFileName_And_Extension_HasExtension(string urlText, string expectedFileName, bool expectedHasFileName, string expectedExtension, bool expectedHasExtension)
         {
@@ -93,7 +81,7 @@ namespace AlternUrl.Test
         }
 
         [Theory]
-        [MemberData("TestData")]
+        [MemberData(nameof(TestData))]
         public void Scheme(UrlTestData urlData)
         {
             // Fixture setup
@@ -105,7 +93,7 @@ namespace AlternUrl.Test
         }
 
         [Theory]
-        [MemberData("TestData")]
+        [MemberData(nameof(TestData))]
         public void UserInfo(UrlTestData urlData)
         {
             // Fixture setup
@@ -117,7 +105,7 @@ namespace AlternUrl.Test
         }
 
         [Theory]
-        [MemberData("TestData")]
+        [MemberData(nameof(TestData))]
         public void Host(UrlTestData urlData)
         {
             // Fixture setup
@@ -129,7 +117,7 @@ namespace AlternUrl.Test
         }
 
         [Theory]
-        [MemberData("TestData")]
+        [MemberData(nameof(TestData))]
         public void Port(UrlTestData urlData)
         {
             // Fixture setup
@@ -141,7 +129,7 @@ namespace AlternUrl.Test
         }
 
         [Theory]
-        [MemberData("TestData")]
+        [MemberData(nameof(TestData))]
         public void Path(UrlTestData urlData)
         {
             // Fixture setup
@@ -153,7 +141,7 @@ namespace AlternUrl.Test
         }
 
         [Theory]
-        [MemberData("TestData")]
+        [MemberData(nameof(TestData))]
         public void Query(UrlTestData urlData)
         {
             // Fixture setup
@@ -165,7 +153,7 @@ namespace AlternUrl.Test
         }
 
         [Theory]
-        [MemberData("TestData")]
+        [MemberData(nameof(TestData))]
         public void Fragment(UrlTestData urlData)
         {
             // Fixture setup
@@ -217,9 +205,10 @@ namespace AlternUrl.Test
             // Teardown  
         }
 
+        [Theory]
         [InlineData("http://www.example.com/", false)]
         [InlineData("http://www.anotherexample.net/", false)]
-        //[InlineData("http://192.168.1.1/", true)]
+        [InlineData("http://192.168.1.1/", true)]
         public void IsDomainIPAddress(string urlText, bool expectedIsIPAddress)
         {
             // Fixture setup
@@ -231,7 +220,7 @@ namespace AlternUrl.Test
         }
 
         [Theory]
-        [MemberData("TestData")]
+        [MemberData(nameof(TestData))]
         public void Normalized(UrlTestData urlData)
         {
             // Fixture setup
@@ -328,7 +317,7 @@ namespace AlternUrl.Test
             }
         }
 
-        public static IEnumerable TestData
+        public static IEnumerable<object[]> TestData
         {
             get
                 {

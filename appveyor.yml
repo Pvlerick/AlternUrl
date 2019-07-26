@@ -1,0 +1,20 @@
+﻿version: '{build}.{branch}'
+
+image: Visual Studio 2019
+
+build:
+  verbosity: minimal
+
+build_script:
+- ps: ./build.ps1
+
+artifacts:
+  - path: 'src\**\Release\*.nupkg'
+
+deploy:
+  provider: NuGet
+  on:
+    branch: master
+    appveyor_repo_tag: true
+  api_key:
+    secure: v1ctRXAlqX/GRJuakWRWnUhrHjiRr+0rLmHhH+24HE2NUqYwskuPY8IHIKHQa20L

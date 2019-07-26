@@ -1,11 +1,21 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Express 2013 for Windows Desktop
-VisualStudioVersion = 12.0.30110.0
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28922.388
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlternUrl.Test", "AlternUrl.Test\AlternUrl.Test.csproj", "{EF8FE2F5-FC0D-400F-8C7E-63539AD5A831}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AlternUrl.Test", "AlternUrl.Test\AlternUrl.Test.csproj", "{EF8FE2F5-FC0D-400F-8C7E-63539AD5A831}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlternUrl", "AlternUrl\AlternUrl.csproj", "{A3630DA2-96A6-4788-A024-9606C01B6C3A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AlternUrl", "AlternUrl\AlternUrl.csproj", "{A3630DA2-96A6-4788-A024-9606C01B6C3A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{36C233C4-D979-47FE-A69B-D998110ACA8F}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		appveyor.yml = appveyor.yml
+		build.cake = build.cake
+		LICENSE = LICENSE
+		README.md = README.md
+		RELEASE_NOTES.md = RELEASE_NOTES.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,5 +34,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4552CFE7-0754-461D-A5AE-FBBC0BB80F06}
 	EndGlobalSection
 EndGlobal
